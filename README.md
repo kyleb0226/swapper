@@ -61,3 +61,8 @@ Health check endpoint: `/up`.
 
 See [docs/OUTREACH.md](docs/OUTREACH.md) for how the prospect finder and mailer work, the compliance rules it
 enforces, and how to split it into its own repository later.
+
+To start free, send through your Gmail account: the steps are in `.env.example`.
+
+To have an AI agent research businesses, add prospects and send emails for you, see
+[docs/outreach-agent/](docs/outreach-agent/README.md): it has the agent instructions, an OpenAPI spec and curl examples.

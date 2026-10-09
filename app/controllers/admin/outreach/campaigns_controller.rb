@@ -25,7 +25,7 @@ module Admin
         template = ::Outreach::EmailTemplate.find(params[:template_id])
         result = ::Outreach::Campaign.new(template: template, prospects: selected_prospects).send!
         message = "Queued #{result.queued} #{"email".pluralize(result.queued)}."
-        message += " Skipped #{result.skipped} (no email or unsubscribed)." if result.skipped.positive?
+        message += " Skipped #{result.skipped} (no email, unsubscribed, or emailed in the last 3 days)." if result.skipped.positive?
         if result.errors.any?
           redirect_to admin_outreach_emails_path, alert: [ message, *result.errors ].join(" ")
         else

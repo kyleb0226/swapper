@@ -3,6 +3,9 @@ module Outreach
   # a batch doesn't look like a blast to spam filters, and capped per day.
   class Campaign
     SPACING = 45.seconds
+    # Never email the same prospect twice in this window (protects against
+    # double-clicks and AI agents re-running the same batch).
+    RECENT_CONTACT_WINDOW = 3.days
 
     Result = Struct.new(:queued, :skipped, :errors)
 
@@ -21,7 +24,7 @@ module Outreach
 
       remaining = Outreach.daily_limit - Outreach.sent_today
       @prospects.each do |prospect|
-        if prospect.email.blank? || prospect.unsubscribed?
+        if prospect.email.blank? || prospect.unsubscribed? || recently_emailed?(prospect)
           result.skipped += 1
           next
         end
@@ -37,6 +40,12 @@ module Outreach
         remaining -= 1
       end
       result
+    end
+
+    private
+
+    def recently_emailed?(prospect)
+      prospect.emails.where(status: %w[queued sent]).where(created_at: RECENT_CONTACT_WINDOW.ago..).exists?
     end
   end
 end

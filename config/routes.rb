@@ -61,6 +61,18 @@ Rails.application.routes.draw do
     end
   end
 
+  # JSON API for AI agents doing outreach (see docs/outreach-agent/)
+  namespace :api do
+    namespace :outreach do
+      get "status", to: "status#show"
+      get "lead_sources", to: "lead_sources#show"
+      resources :prospects, only: %i[index show create update]
+      resources :templates, only: :index
+      resources :emails, only: :index
+      resources :campaigns, only: :create
+    end
+  end
+
   # Public opt-out link included in every outreach email
   get "unsubscribe/:token", to: "outreach/unsubscribes#show", as: :outreach_unsubscribe
   post "unsubscribe/:token", to: "outreach/unsubscribes#create"

@@ -10,6 +10,8 @@ The owner-only area under `/admin/outreach` is a small sales toolkit:
 - **Templates**: reusable emails with merge tags (`{{first_name}}`, `{{organization}}`, ...).
 - **Send**: pick a template and prospects, preview, then send. Emails go out in the background, spaced 45 seconds apart.
 - **Sent log**: every email with its status and any delivery error.
+- **AI agent API**: a token-protected JSON API so an agent can do the research and data entry (and optionally the
+  sending) for you. See [outreach-agent/](outreach-agent/README.md).
 
 ## Compliance built in (CAN-SPAM, and good practice for GDPR/CASL)
 
@@ -17,6 +19,7 @@ The owner-only area under `/admin/outreach` is a small sales toolkit:
 - Every email includes your postal address and an unsubscribe link, plus `List-Unsubscribe` headers for one-click
   unsubscribe in Gmail/Outlook.
 - Unsubscribed prospects are never emailed again, even if already queued.
+- Nobody is emailed twice within 3 days, even if a batch is sent twice.
 - A daily cap (`OUTREACH_DAILY_LIMIT`, default 50) protects your sending domain's reputation.
 
 Tips: send from a separate domain or subdomain (e.g. `hello@getswapper.com`) with SPF, DKIM and DMARC set up, verify
@@ -34,7 +37,8 @@ The tool was written to be lifted out:
 | Admin UI | `app/controllers/admin/outreach/*`, `app/views/admin/outreach/*` |
 | Unsubscribe page | `app/controllers/outreach/unsubscribes_controller.rb`, `app/views/outreach/unsubscribes/*` |
 | Tables | `db/migrate/*_create_outreach_tables.rb` (`outreach_*` tables only) |
-| Tests | `test/models/outreach_test.rb`, `test/controllers/outreach_flow_test.rb` |
+| Agent API | `app/controllers/api/outreach/*`, `docs/outreach-agent/*` |
+| Tests | `test/models/outreach_test.rb`, `test/controllers/outreach_flow_test.rb`, `test/controllers/outreach_api_test.rb` |
 
 It depends on Swapper only for login (`Admin::BaseController` requires `User#platform_admin?`), the shared layout
 helpers, and `ApplicationMailer`. In a new repo, copy those files, add a simple admin login, and replace the
