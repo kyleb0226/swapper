@@ -1,0 +1,10 @@
+<%= page_title @email.subject do %><%= status_badge @email.status %><% end %>
+<div class="card"><div class="card-body">
+  <p class="small text-body-secondary">
+    To <%= @email.to %> (<%= link_to @email.prospect.organization, admin_outreach_prospect_path(@email.prospect) %>)
+    · created <%= l(@email.created_at, format: :short) %><%= " · sent #{l(@email.sent_at, format: :short)}" if @email.sent_at %>
+  </p>
+  <% if @email.error.present? %><div class="alert alert-danger small"><%= @email.error %></div><% end %>
+  <div class="pre-wrap"><%= @email.body %></div>
+</div></div>
+<%= link_to "← Sent log", admin_outreach_emails_path, class: "d-inline-block mt-3" %>

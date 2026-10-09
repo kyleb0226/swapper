@@ -1,0 +1,18 @@
+<%= page_title "Customers", "Every company workspace on Swapper." %>
+<div class="table-responsive">
+  <table class="table bg-white border">
+    <thead class="table-dark"><tr><th>Company</th><th>Users</th><th>Employees</th><th>Swaps completed</th><th>Created</th></tr></thead>
+    <tbody>
+      <% @companies.each do |company| %>
+        <tr>
+          <td><%= link_to company.name, admin_company_path(company) %></td>
+          <td><%= @user_counts.fetch(company.id, 0) %></td>
+          <td><%= @employee_counts.fetch(company.id, 0) %></td>
+          <td><%= @swap_counts.fetch(company.id, 0) %></td>
+          <td class="small"><%= l(company.created_at.to_date, format: :long) %></td>
+        </tr>
+      <% end %>
+      <% if @companies.empty? %><tr><td colspan="5" class="text-center text-body-secondary py-4">No customers yet.</td></tr><% end %>
+    </tbody>
+  </table>
+</div>

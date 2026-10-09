@@ -1,0 +1,23 @@
+<%= page_title "Email templates", "Reusable messages with merge tags." do %>
+  <%= link_to "New template", new_admin_outreach_template_path, class: "btn btn-primary" %>
+<% end %>
+<div class="row g-3">
+  <% @templates.each do |template| %>
+    <div class="col-lg-6">
+      <div class="card h-100"><div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h2 class="h6"><%= template.name %></h2>
+          <span>
+            <%= link_to "Edit", edit_admin_outreach_template_path(template), class: "btn btn-sm btn-outline-secondary" %>
+            <%= button_to "Delete", admin_outreach_template_path(template), method: :delete, form_class: "d-inline", class: "btn btn-sm btn-outline-danger", data: { confirm: "Delete this template?" } %>
+          </span>
+        </div>
+        <p class="small mb-1"><strong>Subject:</strong> <%= template.subject %></p>
+        <p class="small text-body-secondary pre-wrap mb-0"><%= truncate(template.body, length: 280) %></p>
+      </div></div>
+    </div>
+  <% end %>
+  <% if @templates.empty? %>
+    <div class="col-12 text-body-secondary">No templates yet. Run <code>bin/rails db:seed</code> to load starter templates, or write your own.</div>
+  <% end %>
+</div>

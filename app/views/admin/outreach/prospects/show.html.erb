@@ -1,0 +1,37 @@
+<%= page_title @prospect.organization, [ @prospect.sector, [ @prospect.city, @prospect.state ].compact_blank.join(", ") ].compact_blank.join(" · ") do %>
+  <% if @prospect.email.present? && !@prospect.unsubscribed? %>
+    <%= link_to "Send email", new_admin_outreach_campaign_path(prospect_ids: [ @prospect.id ]), class: "btn btn-outline-primary" %>
+  <% end %>
+  <%= link_to "Edit", edit_admin_outreach_prospect_path(@prospect), class: "btn btn-primary" %>
+<% end %>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card"><div class="card-body">
+      <dl class="row mb-0 small">
+        <dt class="col-4">Status</dt><dd class="col-8"><%= status_badge @prospect.status %><%= " Unsubscribed" if @prospect.unsubscribed? %></dd>
+        <dt class="col-4">Contact</dt><dd class="col-8"><%= @prospect.contact_name.presence || "—" %><%= ", #{@prospect.contact_title}" if @prospect.contact_title.present? %></dd>
+        <dt class="col-4">Email</dt><dd class="col-8"><%= @prospect.email ? mail_to(@prospect.email) : "—" %></dd>
+        <dt class="col-4">Phone</dt><dd class="col-8"><%= @prospect.phone.presence || "—" %></dd>
+        <dt class="col-4">Website</dt><dd class="col-8"><%= @prospect.website.present? ? link_to(@prospect.website, @prospect.website, target: "_blank", rel: "noopener") : "—" %></dd>
+        <dt class="col-4">Source</dt><dd class="col-8"><%= @prospect.source.presence || "—" %></dd>
+        <dt class="col-4">Notes</dt><dd class="col-8 pre-wrap mb-0"><%= @prospect.notes.presence || "—" %></dd>
+      </dl>
+    </div></div>
+    <%= button_to "Delete prospect", admin_outreach_prospect_path(@prospect), method: :delete, class: "btn btn-link text-danger px-0 mt-2", data: { confirm: "Delete this prospect and their email history?" } %>
+  </div>
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header bg-white"><strong>Emails</strong></div>
+      <ul class="list-group list-group-flush">
+        <% @emails.each do |email| %>
+          <li class="list-group-item d-flex justify-content-between">
+            <%= link_to email.subject, admin_outreach_email_path(email) %>
+            <span class="small"><%= status_badge email.status %> <%= l(email.created_at, format: :short) %></span>
+          </li>
+        <% end %>
+        <% if @emails.empty? %><li class="list-group-item text-body-secondary">Not contacted yet.</li><% end %>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<%= page_title @employee.name, "#{@employee.job_title}#{" · #{@employee.job_code}" if @employee.job_code.present?}" do %>
+  <% if @employee.user.nil? %>
+    <%= button_to "Invite to sign in", invite_employee_path(@employee), class: "btn btn-outline-primary",
+          disabled: @employee.email.blank?, title: (@employee.email.blank? ? "Add an email first" : nil) %>
+  <% end %>
+  <%= link_to "Edit", edit_employee_path(@employee), class: "btn btn-primary" %>
+<% end %>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card"><div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-5">Email</dt><dd class="col-7"><%= @employee.email.presence || "—" %></dd>
+        <dt class="col-5">Seniority</dt><dd class="col-7"><%= pluralize(@employee.seniority, "year") %></dd>
+        <dt class="col-5">Current location</dt><dd class="col-7"><%= @employee.current_location.name %></dd>
+        <dt class="col-5">Desired location</dt><dd class="col-7"><%= @employee.desired_location&.name || "Not requesting a move" %></dd>
+        <% if @employee.swap_requested_at %>
+          <dt class="col-5">Requested on</dt><dd class="col-7"><%= l(@employee.swap_requested_at.to_date, format: :long) %></dd>
+        <% end %>
+        <% if @employee.request_note.present? %>
+          <dt class="col-5">Note</dt><dd class="col-7 pre-wrap"><%= @employee.request_note %></dd>
+        <% end %>
+        <dt class="col-5">Login</dt>
+        <dd class="col-7 mb-0">
+          <% if @employee.user %>
+            <%= @employee.user.email %> <%= status_badge(@employee.user.pending_invitation? ? "invited" : "active") %>
+          <% else %>
+            No account
+          <% end %>
+        </dd>
+      </dl>
+    </div></div>
+    <%= button_to "Delete employee", employee_path(@employee), method: :delete, class: "btn btn-link text-danger px-0 mt-2",
+          data: { confirm: "Delete #{@employee.name}? Their matches will be removed too." } %>
+  </div>
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header bg-white"><strong>Swap history</strong></div>
+      <% if @matches.any? %>
+        <ul class="list-group list-group-flush">
+          <% @matches.each do |match| %>
+            <% partner = match.other_employee(@employee) %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>with <%= link_to partner.name, partner %> · <%= match.type_label %></span>
+              <span><%= status_badge match.status %> <%= link_to "View", match, class: "small ms-2" %></span>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div class="card-body text-body-secondary">No matches yet.</div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%= link_to "← All employees", employees_path, class: "d-inline-block mt-4" %>

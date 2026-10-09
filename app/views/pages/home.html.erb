@@ -1,0 +1,92 @@
+<% content_for :title, "Fair, fast location swaps for your workforce" %>
+
+<section class="hero p-4 p-md-5 mb-5">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <span class="badge rounded-pill text-bg-light border mb-3">For HR teams with more than one location</span>
+      <h1 class="display-5 fw-bold mb-3">Turn transfer requests into approved swaps.</h1>
+      <p class="lead text-body-secondary mb-4">
+        Employees tell Swapper where they'd rather work. Swapper finds coworkers who want to trade places
+        with them, ranks the pairs by seniority, and gives HR one place to approve, track, and complete each move.
+      </p>
+      <div class="d-flex flex-wrap gap-2">
+        <%= link_to "Create your workspace", sign_up_path, class: "btn btn-primary btn-lg" %>
+        <%= link_to "See how it works", "#how", class: "btn btn-outline-primary btn-lg" %>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="small text-body-secondary mb-2">Match found · Same job code</div>
+          <div class="d-flex justify-content-between align-items-center">
+            <div><strong>Registered Nurse</strong><br><span class="text-body-secondary">North Clinic → South Clinic</span></div>
+          </div>
+          <div class="text-center swap-arrow my-2 fs-4">⇅</div>
+          <div><strong>Registered Nurse</strong><br><span class="text-body-secondary">South Clinic → North Clinic</span></div>
+          <hr>
+          <div class="d-flex gap-2">
+            <span class="btn btn-sm btn-success disabled">Approve</span>
+            <span class="btn btn-sm btn-outline-secondary disabled">Reject</span>
+            <span class="ms-auto small text-body-secondary align-self-center">Combined seniority: 19 yrs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="mb-5">
+  <h2 class="h3 mb-4">How it works</h2>
+  <div class="row g-4">
+    <% [
+      [ "Set up your locations", "Add your sites, stores, schools or facilities, then import your roster from a CSV export of your HR system." ],
+      [ "Employees request a move", "Workers sign in and choose where they'd like to work. HR can also enter requests for them." ],
+      [ "Swapper finds the swaps", "Two people match when each wants the other's location and they hold the same job. Same job code ranks highest." ],
+      [ "HR approves and completes", "Review pairs by seniority, approve, and mark the move complete. Everyone is emailed and every action is logged." ]
+    ].each_with_index do |(title, text), index| %>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100"><div class="card-body">
+          <span class="step-number mb-3"><%= index + 1 %></span>
+          <h3 class="h6 fw-semibold"><%= title %></h3>
+          <p class="text-body-secondary small mb-0"><%= text %></p>
+        </div></div>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="mb-5">
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card h-100"><div class="card-body p-4">
+        <h2 class="h5">Built for the way transfers really work</h2>
+        <ul class="mb-0 text-body-secondary">
+          <li>Seniority-first ranking that fits union and civil-service transfer rules</li>
+          <li>Role-based access: HR Admins, Managers and Employees each see only what they should</li>
+          <li>Every approval, rejection and completed move is recorded in an activity log</li>
+          <li>Rejected pairs are never suggested again unless HR reopens them</li>
+          <li>Each company's data is fully separate from every other company's</li>
+        </ul>
+      </div></div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card h-100"><div class="card-body p-4">
+        <h2 class="h5">Who uses swaps?</h2>
+        <p class="text-body-secondary">Any organization with the same job at many sites:</p>
+        <div class="d-flex flex-wrap gap-2">
+          <% [ "Hospital & clinic networks", "School districts", "State & county agencies", "Corrections", "Transit agencies",
+               "Retail & grocery chains", "Banks & credit unions", "Distribution centers" ].each do |segment| %>
+            <span class="badge rounded-pill text-bg-light border fw-normal py-2 px-3"><%= segment %></span>
+          <% end %>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section class="text-center py-4">
+  <h2 class="h4">Ready to clear your transfer backlog?</h2>
+  <p class="text-body-secondary">Create a workspace in a minute, or email us to set up a walkthrough.</p>
+  <%= link_to "Get started", sign_up_path, class: "btn btn-primary" %>
+  <%= mail_to ENV.fetch("CONTACT_EMAIL", "kylebelfance@gmail.com"), "Talk to us", class: "btn btn-outline-primary ms-2" %>
+</section>

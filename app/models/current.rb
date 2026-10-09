@@ -1,4 +1,7 @@
 class Current < ActiveSupport::CurrentAttributes
-    attribute :user#will be a current user logged in, keeps mulitple instances of users
+  attribute :user
 
+  def company
+    user&.company
+  end
 end

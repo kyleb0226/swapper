@@ -1,0 +1,19 @@
+<%= form_with model: prospect, url: prospect.persisted? ? admin_outreach_prospect_path(prospect) : admin_outreach_prospects_path do |form| %>
+  <%= render "shared/errors", record: prospect %>
+  <div class="row">
+    <div class="col-md-6 mb-3"><%= form.label :organization, class: "form-label" %><%= form.text_field :organization, class: "form-control", required: true %></div>
+    <div class="col-md-6 mb-3"><%= form.label :sector, class: "form-label" %><%= form.select :sector, Outreach::Prospect::SECTORS, { include_blank: true }, class: "form-select" %></div>
+    <div class="col-md-6 mb-3"><%= form.label :contact_name, class: "form-label" %><%= form.text_field :contact_name, class: "form-control" %></div>
+    <div class="col-md-6 mb-3"><%= form.label :contact_title, "Contact title", class: "form-label" %><%= form.text_field :contact_title, class: "form-control", placeholder: "HR Director" %></div>
+    <div class="col-md-6 mb-3"><%= form.label :email, class: "form-label" %><%= form.email_field :email, class: "form-control" %></div>
+    <div class="col-md-6 mb-3"><%= form.label :phone, class: "form-label" %><%= form.telephone_field :phone, class: "form-control" %></div>
+    <div class="col-md-6 mb-3"><%= form.label :website, class: "form-label" %><%= form.url_field :website, class: "form-control" %></div>
+    <div class="col-md-3 mb-3"><%= form.label :city, class: "form-label" %><%= form.text_field :city, class: "form-control" %></div>
+    <div class="col-md-3 mb-3"><%= form.label :state, class: "form-label" %><%= form.text_field :state, class: "form-control", maxlength: 30 %></div>
+    <div class="col-md-6 mb-3"><%= form.label :source, "Where you found them", class: "form-label" %><%= form.text_field :source, class: "form-control" %></div>
+    <div class="col-md-6 mb-3"><%= form.label :status, class: "form-label" %><%= form.select :status, Outreach::Prospect::STATUSES.map { |s| [ s.humanize, s ] }, {}, class: "form-select" %></div>
+    <div class="col-12 mb-3"><%= form.label :notes, class: "form-label" %><%= form.text_area :notes, rows: 4, class: "form-control" %></div>
+  </div>
+  <%= form.submit "Save prospect", class: "btn btn-primary" %>
+  <%= link_to "Cancel", prospect.persisted? ? admin_outreach_prospect_path(prospect) : admin_outreach_prospects_path, class: "btn btn-link" %>
+<% end %>

@@ -1,0 +1,43 @@
+<%= page_title "Send outreach", "Pick a template and the prospects to email. You'll see a preview before anything is sent." %>
+
+<% if Outreach.configuration_problems.any? %>
+  <div class="alert alert-warning">
+    <strong>Sending is turned off until these are set:</strong>
+    <ul class="mb-0"><% Outreach.configuration_problems.each do |problem| %><li><%= problem %></li><% end %></ul>
+  </div>
+<% end %>
+
+<%= form_with url: preview_admin_outreach_campaigns_path do |form| %>
+  <div class="card mb-3"><div class="card-body">
+    <%= form.label :template_id, "Template", class: "form-label" %>
+    <%= form.select :template_id, @templates.map { |t| [ t.name, t.id ] }, { prompt: "Choose a template", selected: params[:template_id] }, class: "form-select", required: true %>
+    <% if @templates.empty? %><div class="form-text"><%= link_to "Create a template first", new_admin_outreach_template_path %>.</div><% end %>
+  </div></div>
+
+  <div class="card mb-3">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <strong>Prospects</strong>
+      <span class="small text-body-secondary">Only prospects with an email who haven't unsubscribed, become customers or said no are listed.</span>
+    </div>
+    <div class="table-responsive" style="max-height: 28rem">
+      <table class="table table-sm mb-0">
+        <thead class="sticky-top bg-white"><tr>
+          <th><input type="checkbox" class="form-check-input" data-select-all="prospect_ids[]" aria-label="Select all"></th>
+          <th>Organization</th><th>Contact</th><th>Status</th><th>Last contacted</th>
+        </tr></thead>
+        <tbody>
+          <% @prospects.each do |prospect| %>
+            <tr>
+              <td><%= check_box_tag "prospect_ids[]", prospect.id, @selected_ids.include?(prospect.id), class: "form-check-input", id: "p_#{prospect.id}" %></td>
+              <td><label for="p_<%= prospect.id %>"><%= prospect.organization %></label></td>
+              <td class="small"><%= prospect.contact_name %> &lt;<%= prospect.email %>&gt;</td>
+              <td><%= status_badge prospect.status %></td>
+              <td class="small"><%= prospect.last_contacted_at ? "#{time_ago_in_words(prospect.last_contacted_at)} ago" : "never" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%= form.submit "Preview →", class: "btn btn-primary", name: nil %>
+<% end %>

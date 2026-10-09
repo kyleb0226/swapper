@@ -1,35 +1,35 @@
 class PasswordResetsController < ApplicationController
+  rate_limit to: 5, within: 10.minutes, only: :create,
+             with: -> { redirect_to new_password_reset_path, alert: "Too many requests. Please try again later." }
 
-    def new
+  before_action :find_user_by_token, only: %i[edit update]
 
+  def new
+  end
+
+  def create
+    if (user = User.find_by(email: params[:email].to_s.strip.downcase))
+      UserMailer.with(user: user).password_reset.deliver_later
     end
+    # Same message either way so the form can't be used to discover accounts.
+    redirect_to sign_in_path, notice: "If that email has an account, a reset link is on its way."
+  end
 
-    def create
-        @user=User.find_by(email: params[:email])
+  def edit
+  end
 
-        if @user.present?
-            #send email
-            PasswordMailer.with(user: @user).reset.deliver_now #password mailer has params too, and the meial shou;d be sent in background to not overload and to make website slow
-        end
-        redirect_to root_path, notice: "A link has been sent to your email if associated with an account"
-    end 
-    def edit
-        @user=User.find_signed(params[:token],purpose: "password_reset")
-    rescue ActiveSupport::MessageVerifier::InvalidSignature# if link is expired
-        redirect_to sign_in_path, alert: "Token has expired, please request another reset link."
+  def update
+    if @user.update(params.require(:user).permit(:password, :password_confirmation).merge(activated_at: @user.activated_at || Time.current))
+      redirect_to sign_in_path, notice: "Password reset. Please sign in."
+    else
+      render :edit, status: :unprocessable_entity
     end
+  end
 
-    def update
-        @user=User.find_signed(params[:token],purpose: "password_reset")
-        if @user.update(password_params)
-            redirect_to sign_in_path, notice: "Password reset successfully!"
-        else
-            render :edit
-        end
+  private
 
-    end
-    private 
-    def password_params
-        params.require(:user).permit(:password, :password_confirmation)
-    end 
+  def find_user_by_token
+    @user = User.find_by_token_for(:password_reset, params[:token])
+    redirect_to new_password_reset_path, alert: "That reset link is invalid or has expired. Please request a new one." unless @user
+  end
 end

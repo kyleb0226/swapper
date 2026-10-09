@@ -1,4 +1,0 @@
-Hi <%= params[:user].email %>!
-Click link to reset password, link will expire in 15 minutes.
-<%=password_reset_edit_url(token: @token,host: Rails.application.config.action_mailer_default_url_options[:host]) %>
-

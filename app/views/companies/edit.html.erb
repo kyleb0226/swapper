@@ -1,0 +1,11 @@
+<%= page_title "Company settings" %>
+<div class="card" style="max-width: 40rem"><div class="card-body p-4">
+  <%= form_with model: @company, url: company_path, method: :patch do |form| %>
+    <%= render "shared/errors", record: @company %>
+    <div class="mb-3">
+      <%= form.label :name, "Company name", class: "form-label" %>
+      <%= form.text_field :name, class: "form-control", required: true %>
+    </div>
+    <%= form.submit "Save", class: "btn btn-primary" %>
+  <% end %>
+</div></div>

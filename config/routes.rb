@@ -1,54 +1,67 @@
 Rails.application.routes.draw do
-  root to: "main#index"
+  root "pages#home"
+  get "about", to: "pages#about"
+  get "up", to: "rails/health#show", as: :rails_health_check
 
-  get "about", to: "about#index"
-
-  get "password", to: "passwords#edit", as: :edit_password
-  patch "password", to: "passwords#update"
-
-  get "password/reset", to: "password_resets#new"#goes to page
-  post "password/reset", to: "password_resets#create"#sends email for reset
-
-  get "password/reset/edit", to: "password_resets#edit"
-  patch "password/reset/edit", to: "password_resets#update"
-
-  get "sign_up" ,to: "registrations#new"
+  # Accounts
+  get "sign_up", to: "registrations#new"
   post "sign_up", to: "registrations#create"
-
-  get "sign_in" ,to: "sessions#new"#go to sign in page
-  post "sign_in", to: "sessions#create"#sign user in request
-
+  get "sign_in", to: "sessions#new"
+  post "sign_in", to: "sessions#create"
   delete "logout", to: "sessions#destroy"
+  resource :password, only: %i[edit update]
+  resources :password_resets, only: %i[new create edit update], param: :token
+  resources :invitations, only: %i[edit update], param: :token
 
-  get "employee_database", to: "employee_database#new"#goes to employee management area
-  post "employee_database", to: "employee_database#create" , as: :add_employee
-
-  get "employee_viewer", to: "employee_viewer#index", as: :employee_view
-
-  get "employee_match", to: "employee_match#create"
-
-
-
-  get "matches/:id", to: "employee_match#destroy", as: :delete_match
-
-
-  get "/employees/:id", to: "employee#show", as: :employee
-
-
-
-  #to update the true or false status of a match
-  resources :employee_match do
-    patch 'complete', on: :member
-    patch 'uncomplete', on: :member
+  # Company workspace
+  get "dashboard", to: "dashboard#show"
+  resource :my_request, only: %i[show update]
+  resources :employees do
+    collection do
+      get :import, action: :import_form
+      post :import
+      get :template
+    end
+    member { post :invite }
   end
-  resources :employee_match do
-    patch 'manual', on: :collection
+  resources :locations, except: :show
+  resources :matches, only: %i[index show] do
+    collection { post :run }
+    member do
+      patch :approve
+      patch :reject
+      patch :reopen
+      patch :complete
+    end
+  end
+  resources :team_members, except: :show do
+    member { post :resend_invitation }
+  end
+  resource :company, only: %i[edit update]
+  get "activity", to: "audit_events#index"
+
+  # Platform owner area: customers + sales outreach
+  namespace :admin do
+    root "dashboard#show"
+    resources :companies, only: %i[index show]
+    namespace :outreach do
+      root "prospects#index"
+      get "lead_sources", to: "lead_sources#show"
+      resources :prospects do
+        collection do
+          get :import, action: :import_form
+          post :import
+        end
+      end
+      resources :templates, except: :show
+      resources :campaigns, only: %i[new create] do
+        collection { post :preview }
+      end
+      resources :emails, only: %i[index show]
+    end
   end
 
-  patch "employee_match", to: "employee_match#manual", as: :manual_employee_match
-  
-
-  get '/employee_match', to: 'employee_match#index'
-
-  
+  # Public opt-out link included in every outreach email
+  get "unsubscribe/:token", to: "outreach/unsubscribes#show", as: :outreach_unsubscribe
+  post "unsubscribe/:token", to: "outreach/unsubscribes#create"
 end

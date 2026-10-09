@@ -1,31 +1,37 @@
-<h1>Sign Up</h1>
-
-<%= form_with(model: @user, url: sign_up_path, data: { turbo: false }) do |form| %>
-  <% if form.object.errors.any?%>
-    <div class="alert alert-danger">
-      <% form.object.errors.full_messages.each do |message|%>
-        <div><%= message %></div>
-      <%end%>
-    </div>
-  <%end%>
-  <div class="mb-3">
-    <%= form.label :email %>
-    <%= form.text_field :email, class: "form-control" ,placeholder: "your@email.com"%>
+<% content_for :title, "Create your workspace" %>
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-6">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h1 class="h4">Create your company workspace</h1>
+      <p class="text-body-secondary small">You'll be the HR Admin. You can invite managers and employees once you're in.</p>
+      <%= form_with model: @user, url: sign_up_path do |form| %>
+        <%= render "shared/errors", record: @user %>
+        <div class="mb-3">
+          <%= form.label :company_name, class: "form-label" %>
+          <%= form.text_field :company_name, value: params.dig(:user, :company_name), class: "form-control", required: true, placeholder: "Acme Health" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :name, "Your name", class: "form-label" %>
+          <%= form.text_field :name, class: "form-control", autocomplete: "name" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :email, "Work email", class: "form-label" %>
+          <%= form.email_field :email, class: "form-control", required: true, autocomplete: "email" %>
+        </div>
+        <div class="row">
+          <div class="col-sm-6 mb-3">
+            <%= form.label :password, class: "form-label" %>
+            <%= form.password_field :password, class: "form-control", required: true, minlength: 8, autocomplete: "new-password" %>
+            <div class="form-text">At least 8 characters.</div>
+          </div>
+          <div class="col-sm-6 mb-3">
+            <%= form.label :password_confirmation, "Confirm password", class: "form-label" %>
+            <%= form.password_field :password_confirmation, class: "form-control", required: true, autocomplete: "new-password" %>
+          </div>
+        </div>
+        <%= form.submit "Create workspace", class: "btn btn-primary w-100" %>
+      <% end %>
+      <p class="small text-body-secondary mt-4 mb-0">Already have an account? <%= link_to "Sign in", sign_in_path %>.</p>
+    </div></div>
   </div>
-  <div class="mb-3">
-    <%= form.label :company_name %>
-    <%= form.text_field :company_name, class: "form-control" ,placeholder: "swapper"%>
-  </div>
-  <div class="mb-3">
-  ` <%= form.label :password%>
-    <%= form.password_field :password, class: "form-control", placeholder:"password"%>`
-  </div>
-  <div class="mb-3">
-    <%= form.label :password_confirmation %>
-    <%= form.password_field :password_confirmation, class: "form-control", placeholder:"password" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.submit "Register", class: "btn btn-primary"%>
-  </div>
-<% end %>
+</div>

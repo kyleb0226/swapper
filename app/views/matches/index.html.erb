@@ -1,0 +1,49 @@
+<%= page_title "Swap matches", "Pairs of employees who can trade locations. Ranked by combined seniority." do %>
+  <%= button_to "Run matching now", run_matches_path, class: "btn btn-primary" %>
+<% end %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <ul class="nav nav-pills">
+    <% Match::STATUSES.each do |status| %>
+      <li class="nav-item">
+        <%= link_to matches_path(status: status, match_type: params[:match_type]), class: [ "nav-link", ("active" if @status == status) ] do %>
+          <%= status.humanize %> <span class="badge text-bg-light border ms-1"><%= @counts.fetch(status, 0) %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <%= form_with url: matches_path, method: :get, class: "d-flex gap-2" do |form| %>
+    <%= form.hidden_field :status, value: @status %>
+    <%= form.select :match_type, Match::TYPES.invert, { include_blank: "All match types", selected: params[:match_type] }, class: "form-select form-select-sm", onchange: "this.form.requestSubmit()" %>
+    <noscript><%= form.submit "Filter", class: "btn btn-sm btn-outline-primary" %></noscript>
+  <% end %>
+</div>
+
+<div class="table-responsive">
+  <table class="table bg-white border">
+    <thead class="table-dark">
+      <tr><th>Employee</th><th></th><th>Employee</th><th>Job</th><th>Match</th><th>Seniority</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% @matches.each do |match| %>
+        <tr>
+          <td><%= link_to match.employee.name, match.employee %><br><span class="small text-body-secondary"><%= match.employee.current_location.name %></span></td>
+          <td class="swap-arrow">⇄</td>
+          <td><%= link_to match.matched_employee.name, match.matched_employee %><br><span class="small text-body-secondary"><%= match.matched_employee.current_location.name %></span></td>
+          <td><%= match.employee.job_title %></td>
+          <td>
+            <%= match.type_label %>
+            <% if match.pending? && (competing = match.competing_count).positive? %>
+              <br><span class="small text-warning-emphasis"><%= pluralize(competing, "competing option") %></span>
+            <% end %>
+          </td>
+          <td><%= match.employee.seniority %> + <%= match.matched_employee.seniority %></td>
+          <td><%= render "actions", match: match %></td>
+        </tr>
+      <% end %>
+      <% if @matches.empty? %>
+        <tr><td colspan="7" class="text-center text-body-secondary py-4">No <%= @status %> matches.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

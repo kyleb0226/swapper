@@ -1,12 +1,16 @@
-<h1>Forgot Password?</h1>
-
-<%= form_with url: password_reset_path do |form|%>
-    <div class="mb-3">
-        <%= form.label :email %>
-        <%= form.text_field :email, class: "form-control" ,placeholder: "your@email.com"%>
-    </div>
-    
-    <div class="mb-3">
-        <%= form.submit "Reset Password", class: "btn btn-primary"%>
-    </div>
-<%end%>
+<% content_for :title, "Reset password" %>
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h1 class="h4">Forgot your password?</h1>
+      <p class="text-body-secondary small">Enter your email and we'll send you a link to choose a new one.</p>
+      <%= form_with url: password_resets_path do |form| %>
+        <div class="mb-3">
+          <%= form.label :email, class: "form-label" %>
+          <%= form.email_field :email, class: "form-control", required: true, autofocus: true %>
+        </div>
+        <%= form.submit "Send reset link", class: "btn btn-primary w-100" %>
+      <% end %>
+    </div></div>
+  </div>
+</div>

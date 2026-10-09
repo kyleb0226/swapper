@@ -1,0 +1,49 @@
+<%= page_title "Owner overview", "Your customers and your sales pipeline." %>
+
+<div class="row g-3 mb-4">
+  <% [ [ "Customer companies", @stats[:companies], admin_companies_path ], [ "Customer users", @stats[:users], admin_companies_path ],
+       [ "Employees tracked", @stats[:employees], admin_companies_path ], [ "Swaps completed", @stats[:completed_swaps], admin_companies_path ],
+       [ "Prospects", @stats[:prospects], admin_outreach_prospects_path ], [ "Outreach emails sent", @stats[:emails_sent], admin_outreach_emails_path ] ].each do |label, value, path| %>
+    <div class="col-6 col-md-4 col-xl-2">
+      <%= link_to path, class: "text-decoration-none text-reset" do %>
+        <div class="card stat-card h-100"><div class="card-body"><div class="stat-value"><%= value %></div><div class="stat-label mt-1"><%= label %></div></div></div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white"><strong>Sales pipeline</strong></div>
+      <ul class="list-group list-group-flush">
+        <% Outreach::Prospect::STATUSES.each do |status| %>
+          <li class="list-group-item d-flex justify-content-between">
+            <%= link_to status.humanize, admin_outreach_prospects_path(status: status) %>
+            <span class="badge text-bg-light border"><%= @pipeline.fetch(status, 0) %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card mb-4">
+      <div class="card-header bg-white"><strong>Newest customers</strong></div>
+      <ul class="list-group list-group-flush">
+        <% @recent_companies.each do |company| %>
+          <li class="list-group-item d-flex justify-content-between"><%= link_to company.name, admin_company_path(company) %><span class="small text-body-secondary"><%= time_ago_in_words(company.created_at) %> ago</span></li>
+        <% end %>
+        <% if @recent_companies.empty? %><li class="list-group-item text-body-secondary">No customers yet.</li><% end %>
+      </ul>
+    </div>
+    <div class="card"><div class="card-body">
+      <h2 class="h6">Outreach workflow</h2>
+      <ol class="small mb-0">
+        <li><%= link_to "Find leads", admin_outreach_lead_sources_path %> by sector and region</li>
+        <li><%= link_to "Add or import prospects", admin_outreach_prospects_path %> (CSV from Apollo, Sales Navigator, vendor lists…)</li>
+        <li><%= link_to "Write templates", admin_outreach_templates_path %> with merge tags like <code>{{first_name}}</code></li>
+        <li><%= link_to "Preview and send", new_admin_outreach_campaign_path %>, then track replies on each prospect</li>
+      </ol>
+    </div></div>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<%= page_title @company.name, "Created #{l(@company.created_at.to_date, format: :long)}" %>
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card"><div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-7">Locations</dt><dd class="col-5"><%= @company.locations.count %></dd>
+        <dt class="col-7">Employees</dt><dd class="col-5"><%= @company.employees.count %></dd>
+        <% Match::STATUSES.each do |status| %>
+          <dt class="col-7"><%= status.humanize %> matches</dt><dd class="col-5"><%= @match_counts.fetch(status, 0) %></dd>
+        <% end %>
+      </dl>
+    </div></div>
+  </div>
+  <div class="col-lg-8">
+    <div class="table-responsive">
+      <table class="table bg-white border">
+        <thead class="table-dark"><tr><th>User</th><th>Role</th><th>Status</th><th>Last sign in</th></tr></thead>
+        <tbody>
+          <% @users.each do |user| %>
+            <tr>
+              <td><%= user.display_name %><br><span class="small"><%= mail_to user.email %></span></td>
+              <td><%= user.role_label %></td>
+              <td><%= status_badge(user.pending_invitation? ? "invited" : "active") %></td>
+              <td class="small"><%= user.last_sign_in_at ? "#{time_ago_in_words(user.last_sign_in_at)} ago" : "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

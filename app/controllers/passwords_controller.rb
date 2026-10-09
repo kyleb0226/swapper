@@ -1,21 +1,21 @@
+# Account settings: change your own name and password.
 class PasswordsController < ApplicationController
-    before_action :require_user_logged_in
+  before_action :require_sign_in
 
-    def edit
+  def edit
+  end
+
+  def update
+    @user = Current.user
+    if @user.authenticate(params.dig(:user, :current_password).to_s)
+      if @user.update(params.require(:user).permit(:name, :password, :password_confirmation))
+        redirect_to edit_password_path, notice: "Account updated."
+      else
+        render :edit, status: :unprocessable_entity
+      end
+    else
+      @user.errors.add(:current_password, "is incorrect")
+      render :edit, status: :unprocessable_entity
     end
-
-    def update
-        if Current.user.update(password_params)
-            redirect_to root_path, notice: "Password Updated Successfully!"
-        
-        else
-
-        end
-    end
-
-    private 
-
-    def password_params
-        params.require(:user).permit(:password, :password_confirmation)
-    end
+  end
 end

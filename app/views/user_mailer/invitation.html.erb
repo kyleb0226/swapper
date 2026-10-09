@@ -1,0 +1,7 @@
+<p>Hi<%= " #{@user.name}" if @user.name.present? %>,</p>
+<p><%= @inviter&.display_name || "Your HR team" %> invited you to join <strong><%= @user.company_name %></strong> on Swapper as <strong><%= @user.role_label %></strong>.</p>
+<% if @user.role == "employee" %>
+  <p>Swapper lets you request a transfer to another location. When a coworker with the same job wants to trade places with you, HR can approve the swap.</p>
+<% end %>
+<p><a href="<%= edit_invitation_url(@token) %>" style="display:inline-block;background:#2f5bea;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;">Accept invitation</a></p>
+<p style="color:#6b7080;font-size:13px;">This link expires in 7 days.</p>

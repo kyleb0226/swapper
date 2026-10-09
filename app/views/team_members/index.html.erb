@@ -1,0 +1,37 @@
+<%= page_title "Team & access", "Who can sign in to #{current_company.name} and what they can do." do %>
+  <%= link_to "Invite someone", new_team_member_path, class: "btn btn-primary" %>
+<% end %>
+
+<div class="table-responsive">
+  <table class="table bg-white border">
+    <thead class="table-dark"><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last sign in</th><th></th></tr></thead>
+    <tbody>
+      <% @members.each do |member| %>
+        <tr>
+          <td><%= member.name %><% if member.employee %><br><%= link_to "Employee profile", member.employee, class: "small" %><% end %></td>
+          <td><%= member.email %></td>
+          <td><%= member.role_label %></td>
+          <td><%= status_badge(member.pending_invitation? ? "invited" : "active") %></td>
+          <td class="small"><%= member.last_sign_in_at ? "#{time_ago_in_words(member.last_sign_in_at)} ago" : "—" %></td>
+          <td class="text-end text-nowrap">
+            <% if member.pending_invitation? %>
+              <%= button_to "Resend", resend_invitation_team_member_path(member), form_class: "d-inline", class: "btn btn-sm btn-outline-primary" %>
+            <% end %>
+            <%= link_to "Edit", edit_team_member_path(member), class: "btn btn-sm btn-outline-secondary" %>
+            <% unless member == Current.user %>
+              <%= button_to "Remove", team_member_path(member), method: :delete, form_class: "d-inline", class: "btn btn-sm btn-outline-danger",
+                    data: { confirm: "Remove #{member.email}'s access?" } %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="card mt-3"><div class="card-body small text-body-secondary">
+  <strong>Employee</strong>: manages their own transfer request ·
+  <strong>Manager</strong>: manages employees and reviews matches ·
+  <strong>HR Admin</strong>: everything, plus locations, team access and the activity log.
+  Tip: to give an existing employee a login, open their profile and click “Invite to sign in”.
+</div></div>
