@@ -58,6 +58,7 @@ Rails.application.routes.draw do
         collection { post :preview }
       end
       resources :emails, only: %i[index show]
+      resources :suppressions, only: %i[index create destroy]
     end
   end
 
@@ -66,6 +67,7 @@ Rails.application.routes.draw do
     namespace :outreach do
       get "status", to: "status#show"
       get "lead_sources", to: "lead_sources#show"
+      get "check", to: "checks#show"
       resources :prospects, only: %i[index show create update]
       resources :templates, only: :index
       resources :emails, only: :index

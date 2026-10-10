@@ -82,3 +82,40 @@ class OutreachApiTest < ActionDispatch::IntegrationTest
     assert_equal 1, Outreach::Email.count
   end
 end
+
+class OutreachApiCheckTest < ActionDispatch::IntegrationTest
+  setup { ENV["OUTREACH_API_TOKEN"] = "t" }
+  teardown { ENV.delete("OUTREACH_API_TOKEN") }
+
+  def auth = { "Authorization" => "Bearer t" }
+
+  test "check says whether a person or organization may be contacted" do
+    get api_outreach_check_path(email: "new@county.gov", organization: "Example County"), headers: auth
+    assert response.parsed_body["can_contact"]
+
+    prospect = Outreach::Prospect.create!(organization: "Example County", email: "hr@county.gov")
+    Outreach::Suppression.record!("hr@county.gov", "contacted")
+    prospect.emails.create!(to: "hr@county.gov", subject: "a", body: "b", status: "sent")
+
+    get api_outreach_check_path(email: "hr@county.gov"), headers: auth
+    assert_equal false, response.parsed_body["can_contact"]
+    assert_equal "already contacted", response.parsed_body["reason"]
+
+    get api_outreach_check_path(email: "director@county.gov", organization: "Example County"), headers: auth
+    assert_equal false, response.parsed_body["can_contact"]
+    assert_match "colleague", response.parsed_body["reason"]
+
+    get api_outreach_check_path(organization: "Example County"), headers: auth
+    assert_equal false, response.parsed_body["can_contact"]
+    assert_equal [ "hr@county.gov" ], response.parsed_body["organization_contacts"].map { |p| p["email"] }
+  end
+
+  test "prospects report whether they can be emailed" do
+    Outreach::Prospect.create!(organization: "A", email: "a@a.gov")
+    Outreach::Suppression.record!("a@a.gov", "contacted")
+    get api_outreach_prospects_path, headers: auth
+    row = response.parsed_body["prospects"].first
+    assert_equal false, row["can_email"]
+    assert_equal "already contacted", row["blocked_reason"]
+  end
+end

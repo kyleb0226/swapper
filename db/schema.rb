@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_09_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_10_000001) do
   create_table "audit_events", force: :cascade do |t|
     t.integer "company_id"
     t.integer "user_id"
@@ -99,6 +99,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_000002) do
     t.datetime "sent_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "follow_up", default: false, null: false
     t.index ["created_at"], name: "index_outreach_emails_on_created_at"
     t.index ["email_template_id"], name: "index_outreach_emails_on_email_template_id"
     t.index ["prospect_id"], name: "index_outreach_emails_on_prospect_id"
@@ -123,6 +124,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_000002) do
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_outreach_prospects_on_email", unique: true, where: "email IS NOT NULL"
     t.index ["status"], name: "index_outreach_prospects_on_status"
+  end
+
+  create_table "outreach_suppressions", force: :cascade do |t|
+    t.string "email"
+    t.string "domain"
+    t.string "reason", null: false
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["domain"], name: "index_outreach_suppressions_on_domain", unique: true, where: "domain IS NOT NULL"
+    t.index ["email"], name: "index_outreach_suppressions_on_email", unique: true, where: "email IS NOT NULL"
   end
 
   create_table "users", force: :cascade do |t|

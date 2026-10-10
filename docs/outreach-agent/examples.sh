@@ -12,6 +12,10 @@ JSON="Content-Type: application/json"
 echo "== What am I allowed to do?"
 curl -sS -H "$AUTH" "$API/status"; echo
 
+echo "== May I contact this organization / person? (call before researching)"
+curl -sS -H "$AUTH" "$API/check?organization=Example%20City%20Schools&domain=example-schools.org"; echo
+curl -sS -H "$AUTH" "$API/check?email=jlee@example-schools.org"; echo
+
 echo "== Where to look for school districts in Ohio"
 curl -sS -H "$AUTH" "$API/lead_sources?sector=Public%20school%20district&region=Ohio"; echo
 

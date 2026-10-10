@@ -9,7 +9,10 @@ module Outreach
     end
 
     def create
-      @prospect&.update!(unsubscribed_at: Time.current) unless @prospect&.unsubscribed?
+      if @prospect && !@prospect.unsubscribed?
+        @prospect.update!(unsubscribed_at: Time.current)
+        Suppression.record!(@prospect.email, "unsubscribed") if @prospect.email.present?
+      end
       render :show
     end
 

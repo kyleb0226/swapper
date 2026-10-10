@@ -23,7 +23,8 @@ module Api
       end
 
       # Creates a prospect, or updates the existing one with the same email
-      # (so an agent re-finding a contact doesn't create duplicates).
+      # (so an agent re-finding a contact doesn't create duplicates). The
+      # response's can_email / blocked_reason say whether a first email may go out.
       def create
         attrs = params.require(:prospect).permit(*FIELDS)
         prospect = attrs[:email].present? && ::Outreach::Prospect.find_by(email: attrs[:email].to_s.strip.downcase)

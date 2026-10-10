@@ -10,10 +10,12 @@ module Admin
         scope = scope.where(status: params[:status]) if params[:status].present?
         scope = scope.where(state: params[:state].upcase) if params[:state].present?
         @prospects = scope.limit(500)
+        @suppressed = ::Outreach::Suppression.where(email: @prospects.map(&:email).compact).index_by(&:email)
       end
 
       def show
         @emails = @prospect.emails.recent
+        @blocked_reason = @prospect.contact_blocked_reason
       end
 
       def new

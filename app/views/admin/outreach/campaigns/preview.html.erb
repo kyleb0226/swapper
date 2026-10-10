@@ -1,10 +1,19 @@
-<%= page_title "Preview", "#{pluralize(@selected.size, "email")} using “#{@template.name}”" %>
+<%= page_title "Preview", "#{pluralize(@selected.size, @follow_up ? "follow-up" : "first email")} using “#{@template.name}”" %>
 
 <% if @problems.any? %>
   <div class="alert alert-warning"><strong>Can't send yet:</strong>
     <ul class="mb-0"><% @problems.each do |problem| %><li><%= problem %></li><% end %></ul>
   </div>
 <% end %>
+<% if @blocked.any? %>
+  <div class="alert alert-secondary">
+    <strong><%= pluralize(@blocked.size, "prospect") %> will be skipped:</strong>
+    <ul class="mb-0 small"><% @blocked.each do |prospect, reason| %><li><%= prospect.organization %> · <%= prospect.email %>: <%= reason %></li><% end %></ul>
+  </div>
+<% end %>
+<% if @selected.empty? %>
+  <p>Nobody left to email in this selection. <%= link_to "Back", new_admin_outreach_campaign_path %></p>
+<% else %>
 <% remaining = Outreach.daily_limit - Outreach.sent_today %>
 <% if @selected.size > remaining %>
   <div class="alert alert-info">Your daily limit is <%= Outreach.daily_limit %> and <%= [ remaining, 0 ].max %> remain today. Only the first <%= [ remaining, 0 ].max %> will be queued.</div>
@@ -24,8 +33,10 @@
 
 <%= form_with url: admin_outreach_campaigns_path do |form| %>
   <%= form.hidden_field :template_id, value: @template.id %>
+  <%= form.hidden_field :follow_up, value: @follow_up ? "1" : "0" %>
   <% @selected.each do |prospect| %><%= hidden_field_tag "prospect_ids[]", prospect.id, id: nil %><% end %>
   <%= form.submit "Send #{pluralize(@selected.size, "email")}", class: "btn btn-primary", disabled: @problems.any?, name: nil,
         data: { confirm: "Send #{pluralize(@selected.size, "email")} now?" } %>
   <%= link_to "Back", new_admin_outreach_campaign_path(prospect_ids: @selected.map(&:id), template_id: @template.id), class: "btn btn-link" %>
+<% end %>
 <% end %>

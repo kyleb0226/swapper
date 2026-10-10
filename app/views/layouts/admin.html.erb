@@ -28,6 +28,7 @@
             <%= nav_item "Templates", admin_outreach_templates_path, active: controller_name == "templates" %>
             <%= nav_item "Send", new_admin_outreach_campaign_path, active: controller_name == "campaigns" %>
             <%= nav_item "Sent log", admin_outreach_emails_path, active: controller_name == "emails" %>
+            <%= nav_item "Do not contact", admin_outreach_suppressions_path, active: controller_name == "suppressions" %>
           </ul>
           <ul class="navbar-nav align-items-lg-center gap-2">
             <% if current_company %>

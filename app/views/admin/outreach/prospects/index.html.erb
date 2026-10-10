@@ -25,9 +25,10 @@
       <tbody>
         <% @prospects.each do |prospect| %>
           <tr>
-            <td><%= check_box_tag "prospect_ids[]", prospect.id, false, class: "form-check-input", id: "prospect_#{prospect.id}", disabled: prospect.email.blank? || prospect.unsubscribed?, aria: { label: "Select #{prospect.organization}" } %></td>
+            <td><%= check_box_tag "prospect_ids[]", prospect.id, false, class: "form-check-input", id: "prospect_#{prospect.id}", disabled: prospect.email.blank? || prospect.unsubscribed? || @suppressed[prospect.email].present?, aria: { label: "Select #{prospect.organization}" } %></td>
             <td><%= link_to prospect.organization, admin_outreach_prospect_path(prospect) %></td>
-            <td><%= prospect.contact_name %><br><span class="small text-body-secondary"><%= prospect.email %><%= " (unsubscribed)" if prospect.unsubscribed? %></span></td>
+            <td><%= prospect.contact_name %><br><span class="small text-body-secondary"><%= prospect.email %></span>
+              <% if (row = @suppressed[prospect.email]) %><span class="badge text-bg-light border"><%= row.label %></span><% end %></td>
             <td class="small"><%= prospect.sector %></td>
             <td class="small"><%= [ prospect.city, prospect.state ].compact_blank.join(", ") %></td>
             <td><%= status_badge prospect.status %></td>

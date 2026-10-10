@@ -31,6 +31,36 @@ paths:
                   remaining_today: { type: integer }
                   prospect_statuses: { type: array, items: { type: string } }
                   sectors: { type: array, items: { type: string } }
+  /check:
+    get:
+      operationId: checkContact
+      summary: Call before researching anyone - may this person / organization be contacted, and who do we already have there?
+      parameters:
+        - { name: email, in: query, schema: { type: string } }
+        - { name: organization, in: query, schema: { type: string } }
+        - { name: domain, in: query, schema: { type: string }, description: "Organization website or email domain, e.g. county.gov" }
+      responses:
+        "200":
+          description: Verdict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  can_contact: { type: boolean }
+                  reason: { type: string, nullable: true }
+                  existing_prospect_id: { type: integer, nullable: true }
+                  organization_contacts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        organization: { type: string }
+                        contact_name: { type: string }
+                        contact_title: { type: string }
+                        email: { type: string }
+                        status: { type: string }
   /lead_sources:
     get:
       operationId: getLeadSources
@@ -204,5 +234,7 @@ components:
           properties:
             id: { type: integer }
             unsubscribed: { type: boolean }
+            can_email: { type: boolean, description: "Whether a first email may be sent now" }
+            blocked_reason: { type: string, nullable: true }
             last_contacted_at: { type: string, format: date-time, nullable: true }
             created_at: { type: string, format: date-time }

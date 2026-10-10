@@ -23,6 +23,11 @@ module Outreach
 
     def unsubscribed? = unsubscribed_at.present?
 
+    def suppression = Suppression.for_email(email)
+
+    # nil when a first email may go out, otherwise why not.
+    def contact_blocked_reason = ContactPolicy.new.blocked_reason(self)
+
     def first_name
       contact_name.to_s.split.first.presence || "there"
     end

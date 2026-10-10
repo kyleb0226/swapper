@@ -12,6 +12,12 @@
     <%= form.label :template_id, "Template", class: "form-label" %>
     <%= form.select :template_id, @templates.map { |t| [ t.name, t.id ] }, { prompt: "Choose a template", selected: params[:template_id] }, class: "form-select", required: true %>
     <% if @templates.empty? %><div class="form-text"><%= link_to "Create a template first", new_admin_outreach_template_path %>.</div><% end %>
+    <div class="form-check mt-3">
+      <%= check_box_tag :follow_up, "1", params[:follow_up] == "1", class: "form-check-input" %>
+      <%= label_tag :follow_up, "This is a follow-up to people I already emailed", class: "form-check-label" %>
+      <div class="form-text">Leave unchecked for first emails: anyone already contacted, and colleagues at the same organization, are skipped automatically.
+        Checked: only people already contacted (at least 3 days ago) are sent to.</div>
+    </div>
   </div></div>
 
   <div class="card mb-3">
@@ -30,7 +36,8 @@
             <tr>
               <td><%= check_box_tag "prospect_ids[]", prospect.id, @selected_ids.include?(prospect.id), class: "form-check-input", id: "p_#{prospect.id}" %></td>
               <td><label for="p_<%= prospect.id %>"><%= prospect.organization %></label></td>
-              <td class="small"><%= prospect.contact_name %> &lt;<%= prospect.email %>&gt;</td>
+              <td class="small"><%= prospect.contact_name %> &lt;<%= prospect.email %>&gt;
+                <% if (row = @suppressed[prospect.email]) %><span class="badge text-bg-light border ms-1"><%= row.label %></span><% end %></td>
               <td><%= status_badge prospect.status %></td>
               <td class="small"><%= prospect.last_contacted_at ? "#{time_ago_in_words(prospect.last_contacted_at)} ago" : "never" %></td>
             </tr>

@@ -17,15 +17,32 @@ module Admin
           render :new, status: :unprocessable_entity
           return
         end
+        @follow_up = params[:follow_up] == "1"
+        policy = ::Outreach::ContactPolicy.new(follow_up: @follow_up)
+        claimed = []
+        @blocked = {}
+        @selected = @selected.select do |prospect|
+          if (reason = policy.blocked_reason(prospect, also_claimed: claimed))
+            @blocked[prospect] = reason
+            false
+          else
+            claimed << prospect
+          end
+        end
         @samples = @selected.first(3).map { |prospect| [ prospect, @template.render_for(prospect) ] }
         @problems = ::Outreach.configuration_problems
       end
 
       def create
         template = ::Outreach::EmailTemplate.find(params[:template_id])
-        result = ::Outreach::Campaign.new(template: template, prospects: selected_prospects).send!
+        result = ::Outreach::Campaign.new(template: template, prospects: selected_prospects,
+                                          follow_up: params[:follow_up] == "1").send!
         message = "Queued #{result.queued} #{"email".pluralize(result.queued)}."
-        message += " Skipped #{result.skipped} (no email, unsubscribed, or emailed in the last 3 days)." if result.skipped.positive?
+        if result.skipped.positive?
+          message += " Skipped #{result.skipped}: " +
+                     result.skipped_reasons.first(5).map { |org, reason| "#{org} (#{reason})" }.join(", ") +
+                     (result.skipped > 5 ? ", …" : ".")
+        end
         if result.errors.any?
           redirect_to admin_outreach_emails_path, alert: [ message, *result.errors ].join(" ")
         else
@@ -38,6 +55,7 @@ module Admin
       def load_choices
         @templates = ::Outreach::EmailTemplate.ordered
         @prospects = ::Outreach::Prospect.emailable.ordered.limit(500)
+        @suppressed = ::Outreach::Suppression.where(email: @prospects.map(&:email)).index_by(&:email)
       end
 
       def selected_prospects

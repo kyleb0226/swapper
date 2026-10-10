@@ -32,7 +32,9 @@ module Api
       def prospect_json(prospect)
         prospect.as_json(only: %i[id organization contact_name contact_title email phone website sector city state
                                   source status notes last_contacted_at created_at])
-                .merge("unsubscribed" => prospect.unsubscribed?)
+                .merge("unsubscribed" => prospect.unsubscribed?,
+                       "can_email" => (reason = prospect.contact_blocked_reason).nil?,
+                       "blocked_reason" => reason)
       end
     end
   end

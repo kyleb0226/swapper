@@ -19,7 +19,9 @@ The owner-only area under `/admin/outreach` is a small sales toolkit:
 - Every email includes your postal address and an unsubscribe link, plus `List-Unsubscribe` headers for one-click
   unsubscribe in Gmail/Outlook.
 - Unsubscribed prospects are never emailed again, even if already queued.
-- Nobody is emailed twice within 3 days, even if a batch is sent twice.
+- A permanent do-not-contact list: everyone emailed is added automatically, so nobody gets a second automatic email,
+  and colleagues at an organization already contacted are skipped for 6 months. Follow-ups are a deliberate,
+  separate choice on the Send page.
 - A daily cap (`OUTREACH_DAILY_LIMIT`, default 50) protects your sending domain's reputation.
 
 Tips: send from a separate domain or subdomain (e.g. `hello@getswapper.com`) with SPF, DKIM and DMARC set up, verify
@@ -32,13 +34,13 @@ The tool was written to be lifted out:
 
 | Piece | Files |
 | --- | --- |
-| Models | `app/models/outreach.rb`, `app/models/outreach/*` |
+| Models | `app/models/outreach.rb`, `app/models/outreach/*` (contact rules live in `contact_policy.rb`) |
 | Mailer + job | `app/mailers/outreach/prospect_mailer.rb`, `app/jobs/outreach/delivery_job.rb`, `app/views/outreach/prospect_mailer/*` |
 | Admin UI | `app/controllers/admin/outreach/*`, `app/views/admin/outreach/*` |
 | Unsubscribe page | `app/controllers/outreach/unsubscribes_controller.rb`, `app/views/outreach/unsubscribes/*` |
-| Tables | `db/migrate/*_create_outreach_tables.rb` (`outreach_*` tables only) |
+| Tables | `db/migrate/*_create_outreach_tables.rb`, `*_create_outreach_suppressions.rb` (`outreach_*` tables only) |
 | Agent API | `app/controllers/api/outreach/*`, `docs/outreach-agent/*` |
-| Tests | `test/models/outreach_test.rb`, `test/controllers/outreach_flow_test.rb`, `test/controllers/outreach_api_test.rb` |
+| Tests | `test/models/outreach_test.rb`, `test/controllers/outreach_flow_test.rb`, `test/controllers/outreach_api_test.rb`, `test/models/outreach_contact_policy_test.rb` |
 
 It depends on Swapper only for login (`Admin::BaseController` requires `User#platform_admin?`), the shared layout
 helpers, and `ApplicationMailer`. In a new repo, copy those files, add a simple admin login, and replace the

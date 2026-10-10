@@ -31,8 +31,14 @@ and, if you allow it, send your outreach emails.
 
 - The token is the only way in; nothing else in the app is reachable through it.
 - Sending only works when `OUTREACH_API_ALLOW_SEND=1` and your postal address and sender are configured.
-- Daily limit (`OUTREACH_DAILY_LIMIT`), never emailing anyone who unsubscribed, and never emailing the same prospect
-  twice within 3 days.
+- **Everyone gets one automatic email, ever.** The moment an email sends, the address goes on a permanent
+  do-not-contact list (`/admin/outreach/suppressions`) that survives even if the prospect is deleted.
+- **One person per organization.** Once someone at a company is emailed, colleagues there (same company email
+  domain or same organization name) are skipped for 6 months, including within a single batch.
+- Unsubscribes and bounced addresses are added to the list for good. You can block whole domains, e.g. existing customers.
+- Follow-ups only happen when you tick "This is a follow-up" on the Send page, at least 3 days later. Agents can't send them.
+- If two batches queue the same person, the list acts as a lock and only the first email sends.
+- Daily limit (`OUTREACH_DAILY_LIMIT`).
 - Re-adding a prospect updates the existing record instead of duplicating it, and an agent can't reset someone
   marked "not interested" or "customer" back to "new".
 - Every email has your postal address and an unsubscribe link, and shows up in `/admin/outreach/emails`.
