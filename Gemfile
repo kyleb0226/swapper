@@ -19,6 +19,9 @@ gem "bcrypt", "~> 3.1.7"
 # Database-backed Active Job backend, used to send email in the background
 gem "solid_queue"
 
+# Claude API, used to judge whether two different job titles are similar enough to swap
+gem "anthropic"
+
 # CSV is no longer a default gem in Ruby 3.4+
 gem "csv"
 

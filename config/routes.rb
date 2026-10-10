@@ -38,6 +38,15 @@ Rails.application.routes.draw do
     member { post :resend_invitation }
   end
   resource :company, only: %i[edit update]
+  resources :jobs, only: :index do
+    collection { patch :describe }
+  end
+  resources :job_similarities, only: [] do
+    member do
+      patch :override
+      patch :recheck
+    end
+  end
   get "activity", to: "audit_events#index"
 
   # Platform owner area: customers + sales outreach

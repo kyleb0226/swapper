@@ -19,9 +19,10 @@
           <% end %>
           <% if Current.user.admin? %>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle <%= "active" if %w[locations team_members companies audit_events].include?(controller_name) %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Settings</a>
+              <a class="nav-link dropdown-toggle <%= "active" if %w[locations jobs job_similarities team_members companies audit_events].include?(controller_name) %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Settings</a>
               <ul class="dropdown-menu">
                 <li><%= link_to "Locations", locations_path, class: "dropdown-item" %></li>
+                <li><%= link_to "Jobs & AI matching", jobs_path, class: "dropdown-item" %></li>
                 <li><%= link_to "Team & access", team_members_path, class: "dropdown-item" %></li>
                 <li><%= link_to "Company", edit_company_path, class: "dropdown-item" %></li>
                 <li><%= link_to "Activity log", activity_path, class: "dropdown-item" %></li>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_10_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_11_000001) do
   create_table "audit_events", force: :cascade do |t|
     t.integer "company_id"
     t.integer "user_id"
@@ -28,6 +28,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_10_000001) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "ai_job_matching", default: false, null: false
   end
 
   create_table "employees", force: :cascade do |t|
@@ -49,6 +50,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_10_000001) do
     t.index ["current_location_id"], name: "index_employees_on_current_location_id"
     t.index ["desired_location_id"], name: "index_employees_on_desired_location_id"
     t.index ["user_id"], name: "index_employees_on_user_id", unique: true
+  end
+
+  create_table "job_profiles", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.string "title_key", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "title_key"], name: "index_job_profiles_on_company_id_and_title_key", unique: true
+    t.index ["company_id"], name: "index_job_profiles_on_company_id"
+  end
+
+  create_table "job_similarities", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.string "job_a", null: false
+    t.string "job_b", null: false
+    t.string "fingerprint"
+    t.string "status", default: "pending", null: false
+    t.string "source", default: "ai", null: false
+    t.integer "score"
+    t.boolean "similar"
+    t.text "reason"
+    t.string "model"
+    t.datetime "requested_at"
+    t.datetime "compared_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "job_a", "job_b"], name: "index_job_similarities_on_company_id_and_job_a_and_job_b", unique: true
+    t.index ["company_id"], name: "index_job_similarities_on_company_id"
   end
 
   create_table "locations", force: :cascade do |t|
@@ -159,6 +190,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_10_000001) do
   add_foreign_key "employees", "locations", column: "current_location_id"
   add_foreign_key "employees", "locations", column: "desired_location_id"
   add_foreign_key "employees", "users"
+  add_foreign_key "job_profiles", "companies"
+  add_foreign_key "job_similarities", "companies"
   add_foreign_key "locations", "companies"
   add_foreign_key "matches", "companies"
   add_foreign_key "matches", "employees"

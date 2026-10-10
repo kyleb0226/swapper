@@ -22,6 +22,14 @@ Two employees match when they're in the same company, each one's desired locatio
 and they have the same job title (case-insensitive). Same job code is labelled a stronger "job code" match. Matches
 run automatically when employees are added, imported or change their request, and can be re-run from the Matches page.
 
+**AI job matching (optional, per company).** With `ANTHROPIC_API_KEY` set, an HR Admin can turn on "Also match
+employees in similar jobs" in Company settings. When two people want each other's location but have different
+titles (say "RN" and "Registered Nurse"), Claude judges whether the jobs are interchangeable and the pair is
+suggested as a "Similar job (AI)" match with the reason shown. Each pair of job titles is compared once and cached;
+it's re-checked only when HR edits one of the two job descriptions (Settings → Jobs & AI matching), and HR can
+mark any pair "always" or "never" similar. Only job titles, codes and descriptions are sent, never employee names.
+A batch of up to 25 comparisons costs a few cents.
+
 Match lifecycle: `pending → approved → completed`, or `pending → rejected`.
 Approving clears the other pending options for both people; completing swaps their current locations and closes both
 requests. Rejected pairs aren't suggested again unless reopened.

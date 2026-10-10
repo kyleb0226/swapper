@@ -1,0 +1,72 @@
+<%= page_title "Jobs & AI matching", "Describe your jobs and decide which different jobs can swap with each other." %>
+
+<% unless current_company.ai_job_matching? %>
+  <div class="alert alert-info">
+    AI job matching is off, so only employees with the same job title are matched.
+    <%= link_to "Turn it on in Company settings", edit_company_path %>.
+  </div>
+<% end %>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <h2 class="h5">Your jobs</h2>
+    <p class="small text-body-secondary">A short description of duties and required licenses makes AI comparisons much more accurate.
+      Changing a description re-checks every comparison involving that job.</p>
+    <div class="d-grid gap-3">
+      <% @jobs.each do |job| %>
+        <div class="card"><div class="card-body">
+          <%= form_with url: describe_jobs_path, method: :patch do |form| %>
+            <%= form.hidden_field :title, value: job[:title], id: nil %>
+            <div class="d-flex justify-content-between align-items-baseline mb-2">
+              <strong><%= job[:title] %></strong>
+              <span class="small text-body-secondary"><%= pluralize(job[:count], "employee") %></span>
+            </div>
+            <%= form.text_area :description, value: job[:description], rows: 2, maxlength: 2000, class: "form-control form-control-sm mb-2",
+                  id: "desc-#{job[:key].parameterize}", aria: { label: "Description of #{job[:title]}" },
+                  placeholder: "e.g. Bedside nursing on med-surg units. Requires an active RN license." %>
+            <%= form.submit "Save description", class: "btn btn-sm btn-outline-primary", name: nil %>
+          <% end %>
+        </div></div>
+      <% end %>
+      <% if @jobs.empty? %><p class="text-body-secondary">No employees yet.</p><% end %>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <h2 class="h5">Jobs compared</h2>
+    <p class="small text-body-secondary">Pairs are compared only when two employees in different jobs want each other's location.
+      A score of <%= JobSimilarity::THRESHOLD %>+ counts as similar. Your overrides always win.</p>
+    <div class="d-grid gap-3">
+      <% @similarities.each do |row| %>
+        <div class="card"><div class="card-body">
+          <div class="d-flex justify-content-between gap-2">
+            <strong><%= @titles[row.job_a] || row.job_a %> ⇄ <%= @titles[row.job_b] || row.job_b %></strong>
+            <span>
+              <% if row.manual? %>
+                <span class="badge text-bg-dark">HR: <%= row.similar? ? "similar" : "not similar" %></span>
+              <% elsif row.status == "pending" || !row.fresh? %>
+                <span class="badge text-bg-warning">Checking…</span>
+              <% elsif row.status == "failed" %>
+                <span class="badge text-bg-danger">Failed</span>
+              <% else %>
+                <span class="badge <%= row.similar? ? "text-bg-success" : "text-bg-secondary" %>"><%= row.score %>/100 · <%= row.similar? ? "similar" : "not similar" %></span>
+              <% end %>
+            </span>
+          </div>
+          <% if row.reason.present? %><p class="small text-body-secondary mt-2 mb-2"><%= row.reason %></p><% end %>
+          <div class="d-flex flex-wrap gap-1">
+            <%= button_to "Always similar", override_job_similarity_path(row, similar: "1"), method: :patch, class: "btn btn-sm btn-outline-success" %>
+            <%= button_to "Never similar", override_job_similarity_path(row, similar: "0"), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+            <% if row.manual? || row.status == "failed" %>
+              <%= button_to row.manual? ? "Let AI decide" : "Try again", recheck_job_similarity_path(row), method: :patch, class: "btn btn-sm btn-link",
+                    disabled: !current_company.ai_job_matching? %>
+            <% end %>
+          </div>
+        </div></div>
+      <% end %>
+      <% if @similarities.empty? %>
+        <p class="text-body-secondary">Nothing compared yet. Comparisons appear here when employees in different jobs want to swap locations.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -7,8 +7,15 @@ class CompaniesController < ApplicationController
 
   def update
     @company = current_company
-    if @company.update(params.require(:company).permit(:name))
-      audit("company.updated", subject: @company, summary: "Renamed workspace to #{@company.name}")
+    was_ai = @company.ai_job_matching?
+    if @company.update(params.require(:company).permit(:name, :ai_job_matching))
+      audit("company.updated", subject: @company, summary: "Updated company settings")
+      if @company.ai_job_matching? && !was_ai
+        SwapMatcher.new(@company).refresh_all
+        audit("company.ai_matching", summary: "Turned on AI job matching")
+      elsif was_ai && !@company.ai_job_matching?
+        audit("company.ai_matching", summary: "Turned off AI job matching")
+      end
       redirect_to edit_company_path, notice: "Company settings saved."
     else
       render :edit, status: :unprocessable_entity

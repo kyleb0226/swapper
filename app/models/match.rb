@@ -5,7 +5,7 @@
 # A rejected pair is remembered so the matcher never proposes it again.
 class Match < ApplicationRecord
   STATUSES = %w[pending approved rejected completed].freeze
-  TYPES = { "job_code" => "Same job code", "job_title" => "Same job title" }.freeze
+  TYPES = { "job_code" => "Same job code", "job_title" => "Same job title", "similar_job" => "Similar job (AI)" }.freeze
 
   belongs_to :company
   belongs_to :employee
@@ -35,6 +35,13 @@ class Match < ApplicationRecord
 
   def type_label
     TYPES.fetch(match_type)
+  end
+
+  # Why the AI (or HR) considers the two jobs similar, for "similar_job" matches.
+  def similarity
+    return unless match_type == "similar_job"
+
+    @similarity ||= JobSimilarity.lookup(company, employee.job_title, matched_employee.job_title)
   end
 
   def combined_seniority

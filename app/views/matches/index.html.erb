@@ -30,7 +30,7 @@
           <td><%= link_to match.employee.name, match.employee %><br><span class="small text-body-secondary"><%= match.employee.current_location.name %></span></td>
           <td class="swap-arrow">⇄</td>
           <td><%= link_to match.matched_employee.name, match.matched_employee %><br><span class="small text-body-secondary"><%= match.matched_employee.current_location.name %></span></td>
-          <td><%= match.employee.job_title %></td>
+          <td><%= match.employee.job_title %><% if match.match_type == "similar_job" %><br><span class="small text-body-secondary">⇄ <%= match.matched_employee.job_title %></span><% end %></td>
           <td>
             <%= match.type_label %>
             <% if match.pending? && (competing = match.competing_count).positive? %>
