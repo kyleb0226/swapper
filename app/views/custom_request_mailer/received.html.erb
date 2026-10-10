@@ -1,0 +1,3 @@
+<p><strong><%= @request.name %></strong> (<%= mail_to @request.email %>) from <strong><%= @request.organization %></strong><%= " · #{@request.employee_count} employees" if @request.employee_count.present? %> asked for custom matching:</p>
+<blockquote style="border-left:3px solid #ccc;margin:0;padding-left:12px;white-space:pre-wrap"><%= @request.message %></blockquote>
+<p><%= link_to "Open it in Swapper", admin_custom_request_url(@request) %> · Reply to this email to answer them directly.</p>

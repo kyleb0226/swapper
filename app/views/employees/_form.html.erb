@@ -33,6 +33,18 @@
       <%= form.label :desired_location_id, "Desired location", class: "form-label" %>
       <%= form.select :desired_location_id, location_option_list(current_company), { include_blank: "— Not requesting a move —" }, class: "form-select" %>
     </div>
+    <% fields = (current_company.rules.same_fields + (employee.custom_fields || {}).keys).uniq %>
+    <% if fields.any? %>
+      <%= form.fields_for :custom_fields do |cf| %>
+        <% fields.each do |field| %>
+          <div class="col-md-4 mb-3">
+            <%= cf.label field, field.humanize, class: "form-label" %>
+            <%= cf.text_field field, value: employee.custom_field(field), class: "form-control" %>
+            <% if current_company.rules.same_fields.include?(field) %><div class="form-text">Must match to swap.</div><% end %>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
     <div class="col-12 mb-3">
       <%= form.label :request_note, "Request note", class: "form-label" %>
       <%= form.text_area :request_note, rows: 2, class: "form-control" %>

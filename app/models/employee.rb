@@ -9,6 +9,15 @@ class Employee < ApplicationRecord
 
   normalizes :name, :job_title, :job_code, with: ->(value) { value.squish }
   normalizes :email, with: ->(email) { email.strip.downcase.presence }
+  # Extra columns from the roster (shift, department, license…) that matching
+  # rules can compare. Keys are normalised; blank values are dropped.
+  normalizes :custom_fields, with: ->(fields) {
+    (fields || {}).to_h.each_with_object({}) do |(key, value), out|
+      k = MatchRules.field_key(key)
+      v = value.to_s.squish.first(100)
+      out[k] = v if k && v.present?
+    end.first(20).to_h
+  }
 
   validates :name, :job_title, presence: true
   validates :seniority, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than: 100 }
@@ -21,6 +30,10 @@ class Employee < ApplicationRecord
 
   scope :ordered, -> { order(:name) }
   scope :seeking, -> { where.not(desired_location_id: nil) }
+
+  def custom_field(name)
+    (custom_fields || {})[MatchRules.field_key(name)]
+  end
 
   def seeking_swap?
     desired_location_id.present?

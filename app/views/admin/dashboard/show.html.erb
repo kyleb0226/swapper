@@ -28,6 +28,18 @@
   </div>
   <div class="col-lg-6">
     <div class="card mb-4">
+      <div class="card-header bg-white d-flex justify-content-between"><strong>Custom requests</strong><%= link_to "All", admin_custom_requests_path, class: "small" %></div>
+      <ul class="list-group list-group-flush">
+        <% @custom_requests.each do |request| %>
+          <li class="list-group-item d-flex justify-content-between gap-2">
+            <span><%= link_to request.organization, admin_custom_request_path(request) %> <span class="small text-body-secondary">— <%= truncate(request.message, length: 60) %></span></span>
+            <%= status_badge(request.status) %>
+          </li>
+        <% end %>
+        <% if @custom_requests.empty? %><li class="list-group-item text-body-secondary">None open. They come from the “Custom solutions” form on the site.</li><% end %>
+      </ul>
+    </div>
+    <div class="card mb-4">
       <div class="card-header bg-white"><strong>Newest customers</strong></div>
       <ul class="list-group list-group-flush">
         <% @recent_companies.each do |company| %>

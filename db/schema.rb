@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_11_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_11_000002) do
   create_table "audit_events", force: :cascade do |t|
     t.integer "company_id"
     t.integer "user_id"
@@ -29,6 +29,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_11_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "ai_job_matching", default: false, null: false
+    t.json "match_rules", default: {}, null: false
+    t.string "custom_rule"
+  end
+
+  create_table "custom_requests", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "email", null: false
+    t.string "organization", null: false
+    t.string "employee_count"
+    t.text "message", null: false
+    t.string "status", default: "new", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_custom_requests_on_status"
   end
 
   create_table "employees", force: :cascade do |t|
@@ -45,6 +60,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_11_000001) do
     t.datetime "swap_requested_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "custom_fields", default: {}, null: false
     t.index ["company_id", "email"], name: "index_employees_on_company_id_and_email"
     t.index ["company_id"], name: "index_employees_on_company_id"
     t.index ["current_location_id"], name: "index_employees_on_current_location_id"

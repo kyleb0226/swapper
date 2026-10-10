@@ -30,6 +30,13 @@ it's re-checked only when HR edits one of the two job descriptions (Settings →
 mark any pair "always" or "never" similar. Only job titles, codes and descriptions are sent, never employee names.
 A batch of up to 25 comparisons costs a few cents.
 
+**Matching rules (per company).** In Company settings an HR Admin can add conditions on top of the basic match:
+minimum seniority, maximum seniority difference, same job code only, and "must also match on" any extra roster
+columns (shift, department, license… — extra CSV columns are saved as custom fields). For anything else, the platform
+owner can write a bespoke rule for one customer and assign it in `/admin`; see `docs/CUSTOM_RULES.md`. Prospects ask
+for these from the "Custom solutions" form (`/custom` and the home page); requests land in `/admin/custom_requests`
+and are emailed to `CONTACT_EMAIL`.
+
 Match lifecycle: `pending → approved → completed`, or `pending → rejected`.
 Approving clears the other pending options for both people; completing swaps their current locations and closes both
 requests. Rejected pairs aren't suggested again unless reopened.

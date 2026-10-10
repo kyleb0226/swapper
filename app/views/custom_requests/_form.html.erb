@@ -1,0 +1,30 @@
+<%= form_with model: custom_request, url: custom_requests_path do |form| %>
+  <%= render "shared/errors", record: custom_request %>
+  <%# Bots fill every field; people never see this one. %>
+  <div aria-hidden="true" style="position:absolute;left:-9999px"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <%= form.label :name, "Your name", class: "form-label" %>
+      <%= form.text_field :name, class: "form-control", required: true, autocomplete: "name" %>
+    </div>
+    <div class="col-md-6">
+      <%= form.label :email, "Work email", class: "form-label" %>
+      <%= form.email_field :email, class: "form-control", required: true, autocomplete: "email" %>
+    </div>
+    <div class="col-md-7">
+      <%= form.label :organization, class: "form-label" %>
+      <%= form.text_field :organization, class: "form-control", required: true, autocomplete: "organization" %>
+    </div>
+    <div class="col-md-5">
+      <%= form.label :employee_count, "Employees", class: "form-label" %>
+      <%= form.select :employee_count, CustomRequest::SIZES, { include_blank: "Choose…" }, class: "form-select" %>
+    </div>
+    <div class="col-12">
+      <%= form.label :message, "What should Swapper do for you?", class: "form-label" %>
+      <%= form.text_area :message, rows: 4, class: "form-control", required: true,
+            placeholder: "e.g. Our union contract says transfers go by union seniority date, and nurses can only swap within the same unit certification." %>
+    </div>
+  </div>
+  <%= form.submit "Send request", class: "btn btn-primary mt-3" %>
+  <span class="small text-body-secondary ms-2">We reply within one business day.</span>
+<% end %>

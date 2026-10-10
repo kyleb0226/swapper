@@ -10,6 +10,21 @@
         <% end %>
       </dl>
     </div></div>
+    <div class="card mt-3"><div class="card-body">
+      <h2 class="h6">Matching rules</h2>
+      <% described = @company.rules.describe %>
+      <ul class="small mb-3"><% described.each do |line| %><li><%= line %></li><% end %><% if described.empty? %><li class="text-body-secondary">Standard matching only</li><% end %></ul>
+      <%= form_with model: @company, url: admin_company_path(@company), method: :patch do |form| %>
+        <%= form.label :custom_rule, "Custom rule for this customer", class: "form-label small" %>
+        <% options = MatchRules::Custom.all.map { |k| [ k.label, k.key ] } %>
+        <%= form.select :custom_rule, options, { include_blank: "None" }, class: "form-select form-select-sm mb-2", disabled: options.empty? %>
+        <% if options.empty? %>
+          <div class="form-text mb-2">No custom rules built yet. Add one in <code>app/services/match_rules/custom/</code> (see <code>docs/CUSTOM_RULES.md</code>).</div>
+        <% else %>
+          <%= form.submit "Save & re-run matching", class: "btn btn-sm btn-primary" %>
+        <% end %>
+      <% end %>
+    </div></div>
   </div>
   <div class="col-lg-8">
     <div class="table-responsive">

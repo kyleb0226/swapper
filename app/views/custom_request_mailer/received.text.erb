@@ -1,0 +1,6 @@
+<%= @request.name %> (<%= @request.email %>) from <%= @request.organization %><%= " · #{@request.employee_count} employees" if @request.employee_count.present? %> asked for custom matching:
+
+<%= @request.message %>
+
+Open it in Swapper: <%= admin_custom_request_url(@request) %>
+Reply to this email to answer them directly.

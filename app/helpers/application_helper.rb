@@ -4,7 +4,8 @@ module ApplicationHelper
     "new" => "info", "contacted" => "primary", "replied" => "warning", "meeting" => "warning",
     "customer" => "success", "not_interested" => "secondary",
     "queued" => "info", "sent" => "success", "failed" => "danger", "skipped" => "secondary",
-    "invited" => "warning", "active" => "success"
+    "invited" => "warning", "active" => "success",
+    "quoted" => "warning", "building" => "primary", "done" => "success", "declined" => "secondary"
   }.freeze
 
   def status_badge(status)

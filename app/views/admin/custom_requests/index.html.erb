@@ -1,0 +1,27 @@
+<%= page_title "Custom requests", "Companies asking for matching built around their own rules." %>
+<ul class="nav nav-pills mb-3">
+  <li class="nav-item"><%= link_to "Open", admin_custom_requests_path, class: [ "nav-link", ("active" unless @status) ] %></li>
+  <% CustomRequest::STATUSES.each do |status| %>
+    <li class="nav-item"><%= link_to admin_custom_requests_path(status: status), class: [ "nav-link", ("active" if @status == status) ] do %>
+      <%= status.humanize %> <span class="badge text-bg-light border ms-1"><%= @counts.fetch(status, 0) %></span>
+    <% end %></li>
+  <% end %>
+</ul>
+<div class="table-responsive">
+  <table class="table bg-white border">
+    <thead class="table-dark"><tr><th>Organization</th><th>From</th><th>Size</th><th>Request</th><th>Status</th><th>Received</th></tr></thead>
+    <tbody>
+      <% @requests.each do |request| %>
+        <tr>
+          <td><%= link_to request.organization, admin_custom_request_path(request) %></td>
+          <td><%= request.name %><br><span class="small"><%= mail_to request.email %></span></td>
+          <td class="small"><%= request.employee_count.presence || "—" %></td>
+          <td class="small"><%= truncate(request.message, length: 110) %></td>
+          <td><%= status_badge(request.status) %></td>
+          <td class="small"><%= time_ago_in_words(request.created_at) %> ago</td>
+        </tr>
+      <% end %>
+      <% if @requests.empty? %><tr><td colspan="6" class="text-body-secondary">Nothing here yet. Requests come from the “Custom solutions” form on the home page.</td></tr><% end %>
+    </tbody>
+  </table>
+</div>

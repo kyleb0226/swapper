@@ -8,4 +8,11 @@ class Company < ApplicationRecord
   has_many :job_similarities, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 120 }
+  validates :custom_rule, inclusion: { in: ->(_) { MatchRules::Custom.keys } }, allow_blank: true
+
+  normalizes :match_rules, with: ->(rules) { MatchRules.clean(rules) }
+
+  def rules
+    MatchRules.new(self)
+  end
 end

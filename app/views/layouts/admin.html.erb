@@ -23,6 +23,11 @@
           <ul class="navbar-nav me-auto">
             <%= nav_item "Overview", admin_root_path %>
             <%= nav_item "Customers", admin_companies_path, active: controller_name == "companies" %>
+            <li class="nav-item">
+              <%= link_to admin_custom_requests_path, class: [ "nav-link", ("active" if controller_name == "custom_requests") ] do %>
+                Custom requests<% if (open_count = CustomRequest.where(status: "new").count).positive? %> <span class="badge text-bg-warning"><%= open_count %></span><% end %>
+              <% end %>
+            </li>
             <%= nav_item "Find leads", admin_outreach_lead_sources_path %>
             <%= nav_item "Prospects", admin_outreach_prospects_path, active: controller_name == "prospects" %>
             <%= nav_item "Templates", admin_outreach_templates_path, active: controller_name == "templates" %>

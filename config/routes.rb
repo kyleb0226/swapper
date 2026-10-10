@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   root "pages#home"
   get "about", to: "pages#about"
+  get "custom", to: "custom_requests#new"
+  resources :custom_requests, only: :create
   get "up", to: "rails/health#show", as: :rails_health_check
 
   # Accounts
@@ -52,7 +54,8 @@ Rails.application.routes.draw do
   # Platform owner area: customers + sales outreach
   namespace :admin do
     root "dashboard#show"
-    resources :companies, only: %i[index show]
+    resources :companies, only: %i[index show update]
+    resources :custom_requests, only: %i[index show update]
     namespace :outreach do
       root "prospects#index"
       get "lead_sources", to: "lead_sources#show"

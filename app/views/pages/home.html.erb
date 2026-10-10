@@ -66,6 +66,7 @@
           <li>Every approval, rejection and completed move is recorded in an activity log</li>
           <li>Rejected pairs are never suggested again unless HR reopens them</li>
           <li>Each company's data is fully separate from every other company's</li>
+          <li>Your own rules on top: seniority limits, same shift or license, or a <a href="#custom">custom rule we build for you</a></li>
         </ul>
       </div></div>
     </div>
@@ -82,6 +83,15 @@
       </div></div>
     </div>
   </div>
+</section>
+
+<section id="custom" class="mb-5">
+  <div class="card border-primary-subtle"><div class="card-body p-4 p-lg-5">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-5"><%= render "custom_requests/pitch" %></div>
+      <div class="col-lg-7"><%= render "custom_requests/form", custom_request: CustomRequest.new %></div>
+    </div>
+  </div></div>
 </section>
 
 <section class="text-center py-4">

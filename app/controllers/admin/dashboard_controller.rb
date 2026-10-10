@@ -7,6 +7,7 @@ module Admin
         emails_sent: ::Outreach::Email.where(status: "sent").count
       }
       @recent_companies = Company.order(created_at: :desc).limit(5)
+      @custom_requests = CustomRequest.open.recent_first.limit(4)
       @pipeline = ::Outreach::Prospect.group(:status).count
     end
   end

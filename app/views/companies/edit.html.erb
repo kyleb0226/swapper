@@ -16,6 +16,38 @@
       Each pair of jobs is compared once and re-checked only when one of the jobs changes. <%= link_to "Review jobs", jobs_path %>.
       <% unless JobComparer.available? %><br><strong>Not available yet:</strong> the site administrator needs to set ANTHROPIC_API_KEY.<% end %>
     </div>
+    <h2 class="h6 mt-4 pt-3 border-top">Matching rules</h2>
+    <p class="small text-body-secondary">Optional conditions on top of the basic match. Changing them re-runs matching:
+      pending suggestions that no longer fit are removed; swaps you already approved stay.</p>
+    <% rules = @company.match_rules || {} %>
+    <%= form.fields_for :match_rules do |r| %>
+      <div class="row g-3 mb-2">
+        <div class="col-sm-6">
+          <%= r.label :min_seniority, "Minimum seniority to swap (years)", class: "form-label" %>
+          <%= r.number_field :min_seniority, value: rules["min_seniority"], min: 0, max: 99, class: "form-control", placeholder: "No minimum" %>
+        </div>
+        <div class="col-sm-6">
+          <%= r.label :max_seniority_gap, "Max seniority difference (years)", class: "form-label" %>
+          <%= r.number_field :max_seniority_gap, value: rules["max_seniority_gap"], min: 0, max: 99, class: "form-control", placeholder: "No limit" %>
+        </div>
+        <div class="col-12">
+          <div class="form-check">
+            <%= r.check_box :same_job_code_only, { checked: rules["same_job_code_only"].present?, class: "form-check-input" } %>
+            <%= r.label :same_job_code_only, "Only match employees with the same job code", class: "form-check-label" %>
+          </div>
+        </div>
+        <div class="col-12">
+          <%= r.label :same_fields, "Must also match on", class: "form-label" %>
+          <%= r.text_field :same_fields, value: Array(rules["same_fields"]).join(", "), class: "form-control", placeholder: "e.g. shift, department, license" %>
+          <div class="form-text">Comma-separated. Add these as columns in your <%= link_to "employee import", import_employees_path %> or on each employee.
+            Employees missing a value won't be matched.</div>
+        </div>
+      </div>
+    <% end %>
+    <% if @company.custom_rule.present? %>
+      <div class="alert alert-info small mb-3"><strong>Custom rule:</strong> <%= @company.rules.describe.last %> — built for your organization.</div>
+    <% end %>
+    <div class="small text-body-secondary mb-3">Need something these don't cover? <%= link_to "Ask for a custom rule", custom_path %>.</div>
     <%= form.submit "Save", class: "btn btn-primary" %>
   <% end %>
 </div></div>

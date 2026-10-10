@@ -1,0 +1,38 @@
+<%= page_title @custom_request.organization, "#{@custom_request.name} · received #{time_ago_in_words(@custom_request.created_at)} ago" %>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card"><div class="card-body">
+      <dl class="row mb-3">
+        <dt class="col-4">Contact</dt><dd class="col-8"><%= @custom_request.name %> · <%= mail_to @custom_request.email %></dd>
+        <dt class="col-4">Employees</dt><dd class="col-8"><%= @custom_request.employee_count.presence || "—" %></dd>
+        <dt class="col-4">Customer?</dt><dd class="col-8"><%= @company ? link_to(@company.name, admin_company_path(@company)) : "Not signed up yet" %></dd>
+      </dl>
+      <h2 class="h6">What they asked for</h2>
+      <p class="pre-wrap mb-0"><%= @custom_request.message %></p>
+    </div></div>
+    <div class="card mt-3"><div class="card-body small">
+      <h2 class="h6">Turning this into a rule</h2>
+      <ol class="mb-0">
+        <li>If a standard rule covers it (seniority minimum or gap, same job code, same shift/department/…), set it in their Company settings, or on their <%= @company ? link_to("customer page", admin_company_path(@company)) : "customer page" %>.</li>
+        <li>Otherwise build a custom rule class (see <code>docs/CUSTOM_RULES.md</code>), deploy, and assign it on their customer page.</li>
+      </ol>
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card"><div class="card-body">
+      <%= form_with model: @custom_request, url: admin_custom_request_path(@custom_request), method: :patch do |form| %>
+        <%= render "shared/errors", record: @custom_request %>
+        <div class="mb-3">
+          <%= form.label :status, class: "form-label" %>
+          <%= form.select :status, CustomRequest::STATUSES.map { |s| [ s.humanize, s ] }, {}, class: "form-select" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :notes, "Your notes", class: "form-label" %>
+          <%= form.text_area :notes, rows: 6, class: "form-control", placeholder: "Quote, scope, follow-up dates…" %>
+        </div>
+        <%= form.submit "Save", class: "btn btn-primary" %>
+        <%= mail_to @custom_request.email, "Email them", subject: "Your Swapper custom matching request", class: "btn btn-link" %>
+      <% end %>
+    </div></div>
+  </div>
+</div>

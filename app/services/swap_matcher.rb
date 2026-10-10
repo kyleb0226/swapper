@@ -5,7 +5,9 @@
 #   * each one's desired location is the other's current location,
 #   * neither is already locked into an approved swap, and
 #   * they hold the same job title (case-insensitive) or, when the company has
-#     AI job matching turned on, jobs that are similar enough to swap.
+#     AI job matching turned on, jobs that are similar enough to swap, and
+#   * they pass the company's matching rules (MatchRules: seniority limits,
+#     same job code, same shift/department/…, or a customer's bespoke rule).
 #
 # Same job code is labelled "job_code" (the strongest match), same title
 # "job_title", and AI-judged similar jobs "similar_job". Pairs HR rejected are
@@ -20,6 +22,7 @@ class SwapMatcher
     @company = company
     @ai = company.ai_job_matching? && JobComparer.available?
     @to_compare = Set.new
+    @rules = MatchRules.new(company)
   end
 
   # Re-evaluates one employee: drops their matches that no longer qualify
@@ -63,6 +66,7 @@ class SwapMatcher
             .where(current_location_id: employee.desired_location_id, desired_location_id: employee.current_location_id)
             .where.not(id: employee.id)
             .reject(&:locked_in_swap?)
+            .select { |other| @rules.allows?(employee, other) }
             .select { |other| same_job?(employee, other) || similar_job_for_new_match?(employee, other) }
   end
 
@@ -107,7 +111,10 @@ class SwapMatcher
   def prune_stale(employee)
     freed = []
     Match.involving(employee).where.not(status: "completed").includes(:employee, :matched_employee).find_each do |match|
-      next if qualifies?(match.employee, match.matched_employee)
+      # Tightened rules only drop *pending* suggestions; a swap HR already
+      # approved stands.
+      next if qualifies?(match.employee, match.matched_employee) &&
+              (!match.pending? || @rules.allows?(match.employee, match.matched_employee))
 
       freed << match.other_employee(employee) if match.approved?
       match.destroy

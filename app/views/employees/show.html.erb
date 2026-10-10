@@ -12,6 +12,9 @@
       <dl class="row mb-0">
         <dt class="col-5">Email</dt><dd class="col-7"><%= @employee.email.presence || "—" %></dd>
         <dt class="col-5">Seniority</dt><dd class="col-7"><%= pluralize(@employee.seniority, "year") %></dd>
+        <% (@employee.custom_fields || {}).each do |field, value| %>
+          <dt class="col-5"><%= field.humanize %></dt><dd class="col-7"><%= value %></dd>
+        <% end %>
         <dt class="col-5">Current location</dt><dd class="col-7"><%= @employee.current_location.name %></dd>
         <dt class="col-5">Desired location</dt><dd class="col-7"><%= @employee.desired_location&.name || "Not requesting a move" %></dd>
         <% if @employee.swap_requested_at %>

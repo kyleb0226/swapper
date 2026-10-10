@@ -102,8 +102,9 @@ class EmployeesController < ApplicationController
 
   def template
     csv = CSV.generate do |rows|
-      rows << EmployeeImporter::HEADERS
-      rows << [ "Jordan Smith", "jordan@example.com", "Registered Nurse", "RN2", 7, "North Clinic", "South Clinic" ]
+      extra = current_company.rules.same_fields
+      rows << EmployeeImporter::HEADERS + extra
+      rows << [ "Jordan Smith", "jordan@example.com", "Registered Nurse", "RN2", 7, "North Clinic", "South Clinic" ] + extra.map { "" }
     end
     send_data csv, filename: "swapper-employees-template.csv", type: "text/csv"
   end
@@ -116,7 +117,7 @@ class EmployeesController < ApplicationController
 
   def employee_params
     params.require(:employee).permit(:name, :email, :job_title, :job_code, :seniority,
-                                     :current_location_id, :desired_location_id, :request_note)
+                                     :current_location_id, :desired_location_id, :request_note, custom_fields: {})
   end
 
   def match_notice(found)

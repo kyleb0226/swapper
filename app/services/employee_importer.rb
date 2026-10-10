@@ -3,6 +3,8 @@ require "csv"
 # Bulk-loads employees from a CSV export (HRIS, spreadsheet, etc.).
 # Unknown locations are created automatically. Rows are matched to existing
 # employees by email so the same file can be re-uploaded to update records.
+# Any extra columns (shift, department, license…) are kept as custom fields
+# that the company's matching rules can use.
 class EmployeeImporter
   HEADERS = %w[name email job_title job_code seniority current_location desired_location].freeze
   MAX_ROWS = 5_000
@@ -30,7 +32,9 @@ class EmployeeImporter
 
     rows.each.with_index(2) do |row, line|
       employee = find_or_build(row["email"])
+      extra = row.to_h.except(*HEADERS).reject { |key, _| key.blank? }
       employee.assign_attributes(
+        custom_fields: (employee.custom_fields || {}).merge(extra.transform_values(&:to_s)),
         name: row["name"], email: row["email"], job_title: row["job_title"], job_code: row["job_code"],
         seniority: row["seniority"].presence || employee.seniority || 0,
         current_location: location(row["current_location"]),

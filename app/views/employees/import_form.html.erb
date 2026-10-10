@@ -25,6 +25,9 @@
       <ul class="small mb-2">
         <li><code>name</code>, <code>job_title</code>, <code>current_location</code> — required</li>
         <li><code>email</code>, <code>job_code</code>, <code>seniority</code>, <code>desired_location</code> — optional</li>
+        <li>Any other column (for example <code>shift</code> or <code>department</code>) is saved on the employee
+          and can be used in your <%= link_to "matching rules", edit_company_path %><% if current_company.rules.same_fields.any? %>
+          — yours use <%= safe_join(current_company.rules.same_fields.map { |f| tag.code(f) }, ", ") %><% end %></li>
       </ul>
       <p class="small text-body-secondary mb-0">New location names are created automatically. Rows with an email that already
         exists update that employee, so you can re-upload the same file later.</p>
