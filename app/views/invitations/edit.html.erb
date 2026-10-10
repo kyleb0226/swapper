@@ -1,0 +1,25 @@
+<% content_for :title, "Accept invitation" %>
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h1 class="h4">Join <%= @user.company_name %> on Swapper</h1>
+      <p class="text-body-secondary small">You're joining as <strong><%= @user.role_label %></strong> with <strong><%= @user.email %></strong>. Choose a password to finish.</p>
+      <%= form_with model: @user, url: invitation_path(params[:token]), method: :patch do |form| %>
+        <%= render "shared/errors", record: @user %>
+        <div class="mb-3">
+          <%= form.label :name, "Your name", class: "form-label" %>
+          <%= form.text_field :name, class: "form-control", autocomplete: "name" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :password, class: "form-label" %>
+          <%= form.password_field :password, value: nil, class: "form-control", required: true, minlength: 8, autocomplete: "new-password" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :password_confirmation, "Confirm password", class: "form-label" %>
+          <%= form.password_field :password_confirmation, class: "form-control", required: true, autocomplete: "new-password" %>
+        </div>
+        <%= form.submit "Activate account", class: "btn btn-primary w-100" %>
+      <% end %>
+    </div></div>
+  </div>
+</div>

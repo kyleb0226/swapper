@@ -1,0 +1,46 @@
+<%= form_with model: employee do |form| %>
+  <%= render "shared/errors", record: employee %>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= form.label :name, class: "form-label" %>
+      <%= form.text_field :name, class: "form-control", required: true %>
+    </div>
+    <div class="col-md-6 mb-3">
+      <%= form.label :email, class: "form-label" %>
+      <%= form.email_field :email, class: "form-control" %>
+      <div class="form-text">Needed to send them notifications or invite them to sign in.</div>
+    </div>
+    <div class="col-md-5 mb-3">
+      <%= form.label :job_title, class: "form-label" %>
+      <%= form.text_field :job_title, class: "form-control", required: true, list: "job-titles" %>
+      <datalist id="job-titles">
+        <% current_company.employees.distinct.pluck(:job_title).sort.each do |title| %><option value="<%= title %>"><% end %>
+      </datalist>
+    </div>
+    <div class="col-md-4 mb-3">
+      <%= form.label :job_code, class: "form-label" %>
+      <%= form.text_field :job_code, class: "form-control" %>
+    </div>
+    <div class="col-md-3 mb-3">
+      <%= form.label :seniority, "Seniority (years)", class: "form-label" %>
+      <%= form.number_field :seniority, class: "form-control", min: 0, max: 99, required: true %>
+    </div>
+    <div class="col-md-6 mb-3">
+      <%= form.label :current_location_id, "Current location", class: "form-label" %>
+      <%= form.select :current_location_id, location_option_list(current_company), { prompt: "Choose…" }, class: "form-select", required: true %>
+    </div>
+    <div class="col-md-6 mb-3">
+      <%= form.label :desired_location_id, "Desired location", class: "form-label" %>
+      <%= form.select :desired_location_id, location_option_list(current_company), { include_blank: "— Not requesting a move —" }, class: "form-select" %>
+    </div>
+    <div class="col-12 mb-3">
+      <%= form.label :request_note, "Request note", class: "form-label" %>
+      <%= form.text_area :request_note, rows: 2, class: "form-control" %>
+    </div>
+  </div>
+  <% if current_company.locations.empty? %>
+    <div class="alert alert-warning">You need to <%= link_to "add locations", new_location_path %> before adding employees.</div>
+  <% end %>
+  <%= form.submit class: "btn btn-primary" %>
+  <%= link_to "Cancel", employee.persisted? ? employee : employees_path, class: "btn btn-link" %>
+<% end %>

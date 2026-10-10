@@ -1,0 +1,15 @@
+<%= form_with model: template, url: template.persisted? ? admin_outreach_template_path(template) : admin_outreach_templates_path do |form| %>
+  <%= render "shared/errors", record: template %>
+  <div class="mb-3"><%= form.label :name, "Template name (only you see this)", class: "form-label" %><%= form.text_field :name, class: "form-control", required: true %></div>
+  <div class="mb-3"><%= form.label :subject, class: "form-label" %><%= form.text_field :subject, class: "form-control", required: true %></div>
+  <div class="mb-3">
+    <%= form.label :body, class: "form-label" %>
+    <%= form.text_area :body, rows: 14, class: "form-control font-monospace", required: true %>
+    <div class="form-text">
+      Merge tags: <code>{{first_name}}</code> <code>{{contact_name}}</code> <code>{{organization}}</code> <code>{{title}}</code>
+      <code>{{city}}</code> <code>{{state}}</code> <code>{{sector}}</code>. Your mailing address and an unsubscribe link are added automatically.
+    </div>
+  </div>
+  <%= form.submit "Save template", class: "btn btn-primary" %>
+  <%= link_to "Cancel", admin_outreach_templates_path, class: "btn btn-link" %>
+<% end %>

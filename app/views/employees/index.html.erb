@@ -1,0 +1,66 @@
+<%= page_title "Employees", "#{@employees.size} shown" do %>
+  <%= link_to "Import CSV", import_employees_path, class: "btn btn-outline-primary" %>
+  <%= link_to "Add employee", new_employee_path, class: "btn btn-primary" %>
+<% end %>
+
+<%= form_with url: employees_path, method: :get, class: "card card-body mb-3" do |form| %>
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <%= form.label :q, "Search", class: "form-label small" %>
+      <%= form.search_field :q, value: params[:q], class: "form-control", placeholder: "Name, email or title" %>
+    </div>
+    <div class="col-md-2">
+      <%= form.label :job_title, "Job title", class: "form-label small" %>
+      <%= form.select :job_title, @job_titles, { include_blank: "All", selected: params[:job_title] }, class: "form-select" %>
+    </div>
+    <div class="col-md-2">
+      <%= form.label :current_location_id, "Current location", class: "form-label small" %>
+      <%= form.select :current_location_id, @locations.map { |l| [ l.name, l.id ] }, { include_blank: "All", selected: params[:current_location_id] }, class: "form-select" %>
+    </div>
+    <div class="col-md-2">
+      <%= form.label :desired_location_id, "Desired location", class: "form-label small" %>
+      <%= form.select :desired_location_id, @locations.map { |l| [ l.name, l.id ] }, { include_blank: "All", selected: params[:desired_location_id] }, class: "form-select" %>
+    </div>
+    <div class="col-md-2">
+      <div class="form-check mb-2">
+        <%= form.check_box :seeking, { checked: params[:seeking] == "1", class: "form-check-input" }, "1", nil %>
+        <%= form.label :seeking, "Requesting a move", class: "form-check-label" %>
+      </div>
+    </div>
+    <div class="col-md-1 d-flex gap-1">
+      <%= form.submit "Filter", class: "btn btn-primary w-100", name: nil %>
+    </div>
+  </div>
+<% end %>
+
+<div class="table-responsive">
+  <table class="table table-hover bg-white border">
+    <thead class="table-dark">
+      <tr>
+        <th><%= sort_link "Name", "name" %></th>
+        <th><%= sort_link "Job title", "job_title" %></th>
+        <th><%= sort_link "Code", "job_code" %></th>
+        <th><%= sort_link "Seniority", "seniority" %></th>
+        <th><%= sort_link "Current", "current" %></th>
+        <th><%= sort_link "Desired", "desired" %></th>
+        <th>Login</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @employees.each do |employee| %>
+        <tr>
+          <td><%= link_to employee.name, employee %></td>
+          <td><%= employee.job_title %></td>
+          <td><%= employee.job_code %></td>
+          <td><%= employee.seniority %></td>
+          <td><%= employee.current_location.name %></td>
+          <td><%= employee.desired_location&.name || tag.span("—", class: "text-body-secondary") %></td>
+          <td><%= employee.user ? (employee.user.pending_invitation? ? status_badge("invited") : status_badge("active")) : tag.span("—", class: "text-body-secondary") %></td>
+        </tr>
+      <% end %>
+      <% if @employees.empty? %>
+        <tr><td colspan="7" class="text-center text-body-secondary py-4">No employees found.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

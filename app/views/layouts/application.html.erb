@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Swapper</title>
+    <title><%= [ content_for(:title), "Swapper" ].compact.join(" · ") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Swapper matches employees who want to trade work locations, so HR can approve fair, seniority-based transfers in minutes.">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "bootstrap.min" %>
+    <%= stylesheet_link_tag "application" %>
+    <%= javascript_include_tag "bootstrap.bundle.min", defer: true %>
+    <%= javascript_include_tag "application", defer: true %>
   </head>
 
-  <body>
-    <%= render partial: "shared/navbar" %>
-    <div class="container">
-      <%= render partial: "shared/flash"%>
+  <body class="d-flex flex-column min-vh-100">
+    <%= render "shared/navbar" %>
+    <main class="container py-4 flex-grow-1">
+      <%= render "shared/flash" %>
       <%= yield %>
-    </div>
+    </main>
+    <%= render "shared/footer" %>
   </body>
 </html>

@@ -1,0 +1,13 @@
+<%= form_with model: location do |form| %>
+  <%= render "shared/errors", record: location %>
+  <div class="mb-3">
+    <%= form.label :name, class: "form-label" %>
+    <%= form.text_field :name, class: "form-control", required: true, placeholder: "e.g. North Clinic, Store #114, Lincoln Elementary" %>
+  </div>
+  <div class="mb-3">
+    <%= form.label :region, "Region / district (optional)", class: "form-label" %>
+    <%= form.text_field :region, class: "form-control" %>
+  </div>
+  <%= form.submit class: "btn btn-primary" %>
+  <%= link_to "Cancel", locations_path, class: "btn btn-link" %>
+<% end %>

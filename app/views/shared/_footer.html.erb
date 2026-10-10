@@ -1,0 +1,9 @@
+<footer class="border-top bg-white py-4 mt-auto">
+  <div class="container d-flex flex-wrap justify-content-between gap-2 small text-body-secondary">
+    <span>© <%= Date.current.year %> Swapper</span>
+    <span>
+      <%= link_to "About", about_path, class: "link-secondary" %> ·
+      <%= mail_to ENV.fetch("CONTACT_EMAIL", "kylebelfance@gmail.com"), "Contact", class: "link-secondary" %>
+    </span>
+  </div>
+</footer>

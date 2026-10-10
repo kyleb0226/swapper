@@ -1,48 +1,61 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <%= link_to "Swapper", root_path, class: "navbar-brand" %>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls>
-    <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-expand-lg bg-white border-bottom">
+  <div class="container">
+    <%= link_to root_path, class: "navbar-brand fw-bold text-primary d-flex align-items-center gap-2" do %>
+      <span class="brand-mark" aria-hidden="true">⇄</span> Swapper
+    <% end %>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-      
-      
-      <%if Current.user%>
-          <li class="nav-item">
-            <%= link_to "Add Employees", employee_database_path, class: "nav-link" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to "View Employees", employee_view_path, class: "nav-link" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to "View Employee Matches", employee_match_path, class: "nav-link" %>
-          </li>
-
-      <%end%>
-      <li class="nav-item">
-        <%= link_to "About", about_path, class: "nav-link" %> 
-      </li>
-    </ul>
-    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <%if Current.user%>
-          <li class="nav-item">
-            <%= link_to Current.user.email, edit_password_path, class: "nav-link" %>
-          </li>
-          <li class="nav-item">
-            <%=button_to "Log out", logout_path, method: :delete, class: "btn btn-outline-secondary"%>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto">
+        <% if signed_in? && current_company %>
+          <% if Current.user.manager? %>
+            <%= nav_item "Dashboard", dashboard_path %>
+            <%= nav_item "Employees", employees_path, active: controller_name == "employees" %>
+            <%= nav_item "Matches", matches_path, active: controller_name == "matches" %>
+          <% end %>
+          <% if Current.user.employee %>
+            <%= nav_item "My transfer", my_request_path %>
+          <% end %>
+          <% if Current.user.admin? %>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle <%= "active" if %w[locations jobs job_similarities team_members companies audit_events].include?(controller_name) %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Settings</a>
+              <ul class="dropdown-menu">
+                <li><%= link_to "Locations", locations_path, class: "dropdown-item" %></li>
+                <li><%= link_to "Jobs & AI matching", jobs_path, class: "dropdown-item" %></li>
+                <li><%= link_to "Team & access", team_members_path, class: "dropdown-item" %></li>
+                <li><%= link_to "Company", edit_company_path, class: "dropdown-item" %></li>
+                <li><%= link_to "Activity log", activity_path, class: "dropdown-item" %></li>
+              </ul>
             </li>
-        <%else%>
-            <li class="nav-item">
-            <%=link_to "Log In", sign_in_path, class: "nav-link"%>
-            </li>
-            <li class="nav-item">
-            <%=link_to "Sign Up", sign_up_path, class: "nav-link"%>
-            </li>
-        <%end%>
+          <% end %>
+        <% elsif !signed_in? %>
+          <%= nav_item "How it works", root_path(anchor: "how"), active: false %>
+          <%= nav_item "About", about_path %>
+        <% end %>
       </ul>
-
+      <ul class="navbar-nav align-items-lg-center gap-2">
+        <% if signed_in? %>
+          <% if Current.user.platform_admin? %>
+            <%= nav_item "Owner admin", admin_root_path %>
+          <% end %>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <%= Current.user.display_name %>
+              <% if current_company %><span class="badge text-bg-light border ms-1"><%= Current.user.role_label %></span><% end %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <% if current_company %><li><span class="dropdown-item-text small text-body-secondary"><%= current_company.name %></span></li><% end %>
+              <li><%= link_to "Account settings", edit_password_path, class: "dropdown-item" %></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><%= button_to "Sign out", logout_path, method: :delete, class: "dropdown-item" %></li>
+            </ul>
+          </li>
+        <% else %>
+          <%= nav_item "Sign in", sign_in_path %>
+          <li class="nav-item"><%= link_to "Start free", sign_up_path, class: "btn btn-primary btn-sm px-3" %></li>
+        <% end %>
+      </ul>
     </div>
   </div>
 </nav>
-

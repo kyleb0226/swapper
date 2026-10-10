@@ -1,0 +1,240 @@
+openapi: 3.1.0
+info:
+  title: Swapper Outreach API
+  version: "1.0"
+  description: >
+    Lets an AI agent research leads, manage the prospect list and (when enabled) send outreach emails for Swapper.
+    Authenticate with "Authorization: Bearer <OUTREACH_API_TOKEN>".
+servers:
+  - url: https://YOUR-APP-HOST/api/outreach
+    description: Replace with your deployed app (or http://localhost:3000/api/outreach locally)
+security:
+  - bearerAuth: []
+paths:
+  /status:
+    get:
+      operationId: getStatus
+      summary: What the agent may do right now (sending allowed, emails remaining today, valid sectors/statuses)
+      responses:
+        "200":
+          description: Current limits and settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  can_send: { type: boolean }
+                  send_enabled_for_api: { type: boolean }
+                  configuration_problems: { type: array, items: { type: string } }
+                  daily_limit: { type: integer }
+                  sent_today: { type: integer }
+                  remaining_today: { type: integer }
+                  prospect_statuses: { type: array, items: { type: string } }
+                  sectors: { type: array, items: { type: string } }
+  /check:
+    get:
+      operationId: checkContact
+      summary: Call before researching anyone - may this person / organization be contacted, and who do we already have there?
+      parameters:
+        - { name: email, in: query, schema: { type: string } }
+        - { name: organization, in: query, schema: { type: string } }
+        - { name: domain, in: query, schema: { type: string }, description: "Organization website or email domain, e.g. county.gov" }
+      responses:
+        "200":
+          description: Verdict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  can_contact: { type: boolean }
+                  reason: { type: string, nullable: true }
+                  existing_prospect_id: { type: integer, nullable: true }
+                  organization_contacts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        organization: { type: string }
+                        contact_name: { type: string }
+                        contact_title: { type: string }
+                        email: { type: string }
+                        status: { type: string }
+  /lead_sources:
+    get:
+      operationId: getLeadSources
+      summary: Curated directories, plus ready-made web searches when a sector is given
+      parameters:
+        - { name: sector, in: query, schema: { type: string }, description: "One of the sectors from /status" }
+        - { name: region, in: query, schema: { type: string }, description: "City, state or region, e.g. Ohio" }
+      responses:
+        "200":
+          description: Sources and searches
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        url: { type: string }
+                        category: { type: string }
+                        description: { type: string }
+                  searches:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label: { type: string }
+                        url: { type: string }
+  /prospects:
+    get:
+      operationId: listProspects
+      summary: List prospects (check before adding to avoid duplicates)
+      parameters:
+        - { name: q, in: query, schema: { type: string }, description: "Search organization, contact name or email" }
+        - { name: status, in: query, schema: { type: string } }
+        - { name: sector, in: query, schema: { type: string } }
+        - { name: state, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, default: 200, maximum: 1000 } }
+      responses:
+        "200":
+          description: Prospects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prospects: { type: array, items: { $ref: "#/components/schemas/Prospect" } }
+    post:
+      operationId: addProspect
+      summary: Add a prospect, or update the existing one that has the same email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prospect]
+              properties:
+                prospect: { $ref: "#/components/schemas/ProspectInput" }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Prospect" } } } }
+        "200": { description: Updated existing prospect, content: { application/json: { schema: { $ref: "#/components/schemas/Prospect" } } } }
+        "422": { description: Validation errors }
+  /prospects/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: getProspect
+      summary: One prospect with its email history
+      responses:
+        "200": { description: Prospect, content: { application/json: { schema: { $ref: "#/components/schemas/Prospect" } } } }
+        "404": { description: Not found }
+    patch:
+      operationId: updateProspect
+      summary: Update notes, details or status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prospect]
+              properties:
+                prospect: { $ref: "#/components/schemas/ProspectInput" }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Prospect" } } } }
+        "422": { description: Validation errors }
+  /templates:
+    get:
+      operationId: listTemplates
+      summary: Email templates available to send
+      responses:
+        "200":
+          description: Templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        name: { type: string }
+                        subject: { type: string }
+                        body: { type: string }
+  /emails:
+    get:
+      operationId: listEmails
+      summary: Recently queued/sent emails and their status
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, default: 100, maximum: 500 } }
+      responses:
+        "200": { description: Emails }
+  /campaigns:
+    post:
+      operationId: sendCampaign
+      summary: Send a template to prospects (only when sending is enabled; daily limit and unsubscribe rules apply)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [template_id, prospect_ids]
+              properties:
+                template_id: { type: integer }
+                prospect_ids: { type: array, items: { type: integer }, maxItems: 50 }
+      responses:
+        "200":
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  queued: { type: integer }
+                  skipped: { type: integer }
+                  errors: { type: array, items: { type: string } }
+        "403": { description: Sending through the API is turned off }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ProspectInput:
+      type: object
+      properties:
+        organization: { type: string, description: "Required when creating" }
+        contact_name: { type: string }
+        contact_title: { type: string }
+        email: { type: string, description: "Only an address actually found published; never guessed" }
+        phone: { type: string }
+        website: { type: string }
+        sector: { type: string, description: "One of the sectors from /status" }
+        city: { type: string }
+        state: { type: string }
+        source: { type: string, description: "URL where the contact was found" }
+        status: { type: string, enum: [new, contacted, replied, meeting, customer, not_interested] }
+        notes: { type: string }
+    Prospect:
+      allOf:
+        - $ref: "#/components/schemas/ProspectInput"
+        - type: object
+          properties:
+            id: { type: integer }
+            unsubscribed: { type: boolean }
+            can_email: { type: boolean, description: "Whether a first email may be sent now" }
+            blocked_reason: { type: string, nullable: true }
+            last_contacted_at: { type: string, format: date-time, nullable: true }
+            created_at: { type: string, format: date-time }

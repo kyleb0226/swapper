@@ -1,72 +1,65 @@
 /*
- * This is a manifest file that'll be compiled into application.css, which will include all the files
- * listed below.
- *
- * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
- * vendor/assets/stylesheets directory can be referenced here using a relative path.
- *
- * You're free to add application-wide styles to this file and they'll appear at the bottom of the
- * compiled file so the styles you add here take precedence over styles defined in any other CSS
- * files in this directory. Styles in this file should be added after the last require_* statement.
- * It is generally better to create a new file per style scope.
- *
- *= require_tree .
  *= require_self
  */
 
- /* Add this CSS to your styles.css file */
+:root {
+  --bs-primary: #2f5bea;
+  --bs-primary-rgb: 47, 91, 234;
+  --bs-link-color: #2f5bea;
+  --bs-link-color-rgb: 47, 91, 234;
+  --bs-link-hover-color: #1f43b8;
+  --bs-body-bg: #f6f7fb;
+}
 
-/* Style for filter form */
-.filter-form {
-    margin-bottom: 20px;
-  }
-  
-  /* Style for filter groups */
-  .filter-group {
-    margin-bottom: 10px;
-  }
-  
-  /* Style for labels */
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  /* Style for select elements */
-  select {
-    width: 200px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  
-  /* Style for filter button */
-  .filter-button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .filter-button:hover {
-    background-color: #0056b3;
-  }
-  
+.btn-primary {
+  --bs-btn-bg: #2f5bea;
+  --bs-btn-border-color: #2f5bea;
+  --bs-btn-hover-bg: #1f43b8;
+  --bs-btn-hover-border-color: #1f43b8;
+  --bs-btn-active-bg: #1a3a9f;
+  --bs-btn-disabled-bg: #2f5bea;
+}
+.btn-outline-primary {
+  --bs-btn-color: #2f5bea;
+  --bs-btn-border-color: #2f5bea;
+  --bs-btn-hover-bg: #2f5bea;
+  --bs-btn-hover-border-color: #2f5bea;
+}
+.text-primary { color: #2f5bea !important; }
 
+.brand-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: .5rem;
+  background: #2f5bea;
+  color: #fff;
+  font-size: 1rem;
+}
 
-  .filter-container {
-    display: flex;
-    align-items: center; /* Vertical center alignment */
-  }
-  
-  .filter-group {
-    margin-right: 10px; /* Adjust as needed */
-  }
-  
-  .filter-form {
-    display: flex;
-    flex-wrap: wrap; /* Ensure that items wrap to the next line if they exceed the width */
-  }
+.card { border-color: #e6e8f0; }
+.stat-card .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+.stat-card .stat-label { color: var(--bs-secondary-color); font-size: .875rem; }
+
+.hero {
+  background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%);
+  border: 1px solid #e6e8f0;
+  border-radius: 1rem;
+}
+.hero h1 { letter-spacing: -.02em; }
+.step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #2f5bea;
+  color: #fff;
+  font-weight: 600;
+}
+
+.table > :not(caption) > * > * { vertical-align: middle; }
+.swap-arrow { color: var(--bs-secondary-color); }
+.pre-wrap { white-space: pre-wrap; }
+form.d-inline { display: inline; }

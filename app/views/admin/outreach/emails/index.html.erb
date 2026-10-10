@@ -1,0 +1,17 @@
+<%= page_title "Sent log", "#{@sent_today} of #{Outreach.daily_limit} daily sends used today." %>
+<div class="table-responsive">
+  <table class="table bg-white border">
+    <thead class="table-dark"><tr><th>When</th><th>To</th><th>Subject</th><th>Status</th></tr></thead>
+    <tbody>
+      <% @emails.each do |email| %>
+        <tr>
+          <td class="small text-nowrap"><%= l(email.created_at, format: :short) %></td>
+          <td><%= link_to email.prospect.organization, admin_outreach_prospect_path(email.prospect) %><br><span class="small text-body-secondary"><%= email.to %></span></td>
+          <td><%= link_to email.subject, admin_outreach_email_path(email) %></td>
+          <td><%= status_badge email.status %><% if email.error.present? %><br><span class="small text-danger"><%= truncate(email.error, length: 80) %></span><% end %></td>
+        </tr>
+      <% end %>
+      <% if @emails.empty? %><tr><td colspan="4" class="text-center text-body-secondary py-4">Nothing sent yet.</td></tr><% end %>
+    </tbody>
+  </table>
+</div>

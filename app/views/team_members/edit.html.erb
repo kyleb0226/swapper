@@ -1,0 +1,13 @@
+<%= page_title "Edit #{@member.display_name}", @member.email %>
+<div class="card" style="max-width: 40rem"><div class="card-body p-4">
+  <%= form_with model: @member, url: team_member_path(@member) do |form| %>
+    <%= render "shared/errors", record: @member %>
+    <div class="mb-3">
+      <%= form.label :name, class: "form-label" %>
+      <%= form.text_field :name, class: "form-control" %>
+    </div>
+    <%= render "role_field", form: form %>
+    <%= form.submit "Save", class: "btn btn-primary" %>
+    <%= link_to "Cancel", team_members_path, class: "btn btn-link" %>
+  <% end %>
+</div></div>

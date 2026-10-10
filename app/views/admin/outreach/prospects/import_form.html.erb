@@ -1,0 +1,30 @@
+<%= page_title "Import prospects", "Upload a CSV export from Apollo, LinkedIn Sales Navigator, ZoomInfo, a vendor list or your own spreadsheet." %>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card"><div class="card-body p-4">
+      <%= form_with url: import_admin_outreach_prospects_path, multipart: true do |form| %>
+        <div class="mb-3"><%= form.label :file, "CSV file", class: "form-label" %><%= form.file_field :file, accept: ".csv,text/csv", class: "form-control", required: true %></div>
+        <div class="mb-3"><%= form.label :source, "Source label", class: "form-label" %><%= form.text_field :source, class: "form-control", placeholder: "e.g. Apollo export Oct 2026" %></div>
+        <%= form.submit "Import", class: "btn btn-primary" %>
+      <% end %>
+      <% if @result&.errors&.any? %>
+        <div class="alert alert-warning mt-4 mb-0">
+          <strong><%= pluralize(@result.errors.size, "row") %> couldn't be imported:</strong>
+          <ul class="mb-0 mt-1 small"><% @result.errors.first(50).each do |error| %><li><%= error %></li><% end %></ul>
+        </div>
+      <% end %>
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card"><div class="card-body small">
+      <h2 class="h6">Recognized columns</h2>
+      <p>Only an organization/company column is required. Common names are understood automatically:</p>
+      <ul class="mb-2">
+        <li>Organization: <code>Company</code>, <code>Company Name</code>, <code>Account</code>, <code>Agency</code></li>
+        <li>Contact: <code>Name</code> or <code>First Name</code> + <code>Last Name</code></li>
+        <li><code>Title</code>, <code>Email</code>, <code>Phone</code>, <code>Website</code>, <code>Industry</code>, <code>City</code>, <code>State</code>, <code>Notes</code></li>
+      </ul>
+      <p class="text-body-secondary mb-0">Rows with an email already on file update that prospect instead of duplicating it.</p>
+    </div></div>
+  </div>
+</div>

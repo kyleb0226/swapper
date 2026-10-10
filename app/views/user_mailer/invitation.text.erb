@@ -1,0 +1,6 @@
+Hi<%= " #{@user.name}" if @user.name.present? %>,
+
+<%= @inviter&.display_name || "Your HR team" %> invited you to join <%= @user.company_name %> on Swapper as <%= @user.role_label %>.
+
+Accept your invitation and choose a password here (expires in 7 days):
+<%= edit_invitation_url(@token) %>

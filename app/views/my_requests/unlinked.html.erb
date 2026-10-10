@@ -1,0 +1,8 @@
+<%= page_title "My transfer request" %>
+<div class="card"><div class="card-body">
+  <p class="mb-2">Your account isn't connected to an employee record yet, so you can't submit a transfer request.</p>
+  <p class="text-body-secondary mb-0">Ask your HR team to add you as an employee using <strong><%= Current.user.email %></strong> and send you an invitation from your employee profile.</p>
+  <% if Current.user.manager? %>
+    <hr><%= link_to "Go to the dashboard", dashboard_path, class: "btn btn-outline-primary btn-sm" %>
+  <% end %>
+</div></div>

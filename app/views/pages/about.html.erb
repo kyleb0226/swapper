@@ -1,0 +1,30 @@
+<% content_for :title, "About" %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <h1 class="h2 mb-4">About Swapper</h1>
+
+    <h2 class="h5 mt-4">What it is</h2>
+    <p>Swapper helps organizations with many locations handle employee transfer requests. When two people
+       doing the same job each want to work where the other one is, they can simply trade places. Swapper finds those
+       pairs automatically and gives HR a clear workflow to approve and complete them.</p>
+
+    <h2 class="h5 mt-4">Why it matters</h2>
+    <p>Transfer requests usually live in spreadsheets, emails and paper forms. Matches get missed, employees wait
+       months, and some leave for an employer closer to home. A one-for-one swap keeps both locations fully staffed
+       while giving two employees what they asked for.</p>
+
+    <h2 class="h5 mt-4">Who can do what</h2>
+    <table class="table table-sm bg-white border">
+      <thead><tr><th>Role</th><th>Can</th></tr></thead>
+      <tbody>
+        <tr><td>Employee</td><td>Sign in, choose a desired location, see the status of their request.</td></tr>
+        <tr><td>Manager</td><td>Everything above, plus add/import employees and review, approve and complete matches.</td></tr>
+        <tr><td>HR Admin</td><td>Everything above, plus manage locations, invite staff, set roles and view the activity log.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 class="h5 mt-4">Contact</h2>
+    <p><%= mail_to ENV.fetch("CONTACT_EMAIL", "kylebelfance@gmail.com") %></p>
+  </div>
+</div>

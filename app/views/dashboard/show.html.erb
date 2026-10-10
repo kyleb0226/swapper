@@ -1,0 +1,90 @@
+<%= page_title "Dashboard", current_company.name do %>
+  <%= link_to "Add employee", new_employee_path, class: "btn btn-outline-primary" %>
+  <%= button_to "Run matching", run_matches_path, class: "btn btn-primary" %>
+<% end %>
+
+<% if @locations_count < 2 && Current.user.admin? %>
+  <div class="card border-primary mb-4"><div class="card-body">
+    <h2 class="h5">Getting started</h2>
+    <ol class="mb-0">
+      <li class="<%= "text-decoration-line-through text-body-secondary" if @locations_count >= 2 %>">
+        <%= link_to "Add at least two locations", new_location_path %> (sites, stores, schools, facilities…)
+      </li>
+      <li><%= link_to "Add employees", new_employee_path %> or <%= link_to "import them from a CSV", import_employees_path %></li>
+      <li><%= link_to "Invite managers and employees", team_members_path %> so they can sign in</li>
+    </ol>
+  </div></div>
+<% end %>
+
+<div class="row g-3 mb-4">
+  <% [
+    [ "Employees", @stats[:employees], employees_path ],
+    [ "Requesting a move", @stats[:seeking], employees_path(seeking: 1) ],
+    [ "Matches to review", @stats[:pending], matches_path(status: "pending") ],
+    [ "Approved, not yet moved", @stats[:approved], matches_path(status: "approved") ],
+    [ "Swaps completed", @stats[:completed], matches_path(status: "completed") ]
+  ].each do |label, value, path| %>
+    <div class="col-6 col-md-4 col-xl">
+      <%= link_to path, class: "text-decoration-none text-reset" do %>
+        <div class="card stat-card h-100"><div class="card-body">
+          <div class="stat-value"><%= value %></div>
+          <div class="stat-label mt-1"><%= label %></div>
+        </div></div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <strong>Newest matches to review</strong>
+        <%= link_to "View all", matches_path, class: "small" %>
+      </div>
+      <% if @pending_matches.any? %>
+        <ul class="list-group list-group-flush">
+          <% @pending_matches.each do |match| %>
+            <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+              <span>
+                <%= link_to match.employee.name, match.employee %> <span class="text-body-secondary">(<%= match.employee.current_location.name %>)</span>
+                <span class="swap-arrow mx-1">⇄</span>
+                <%= link_to match.matched_employee.name, match.matched_employee %> <span class="text-body-secondary">(<%= match.matched_employee.current_location.name %>)</span>
+              </span>
+              <%= link_to "Review", match, class: "btn btn-sm btn-outline-primary" %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div class="card-body text-body-secondary">No matches waiting. They appear here automatically as employees request moves.</div>
+      <% end %>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card mb-4">
+      <div class="card-header bg-white"><strong>Most requested locations</strong></div>
+      <% if @top_destinations.any? %>
+        <ul class="list-group list-group-flush">
+          <% @top_destinations.each do |name, count| %>
+            <li class="list-group-item d-flex justify-content-between"><span><%= name %></span><span class="badge text-bg-light border"><%= count %></span></li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div class="card-body text-body-secondary">No transfer requests yet.</div>
+      <% end %>
+    </div>
+    <% if @recent_events %>
+      <div class="card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <strong>Recent activity</strong><%= link_to "Activity log", activity_path, class: "small" %>
+        </div>
+        <ul class="list-group list-group-flush small">
+          <% @recent_events.each do |event| %>
+            <li class="list-group-item"><%= event.summary || event.action %> <span class="text-body-secondary">· <%= time_ago_in_words(event.created_at) %> ago</span></li>
+          <% end %>
+          <% if @recent_events.empty? %><li class="list-group-item text-body-secondary">No activity yet.</li><% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+</div>

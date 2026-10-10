@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= [ content_for(:title), "Swapper Admin" ].compact.join(" · ") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "bootstrap.min" %>
+    <%= stylesheet_link_tag "application" %>
+    <%= javascript_include_tag "bootstrap.bundle.min", defer: true %>
+    <%= javascript_include_tag "application", defer: true %>
+  </head>
+
+  <body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <%= link_to admin_root_path, class: "navbar-brand fw-semibold" do %>Swapper <span class="badge text-bg-warning ms-1">Owner</span><% end %>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav me-auto">
+            <%= nav_item "Overview", admin_root_path %>
+            <%= nav_item "Customers", admin_companies_path, active: controller_name == "companies" %>
+            <%= nav_item "Find leads", admin_outreach_lead_sources_path %>
+            <%= nav_item "Prospects", admin_outreach_prospects_path, active: controller_name == "prospects" %>
+            <%= nav_item "Templates", admin_outreach_templates_path, active: controller_name == "templates" %>
+            <%= nav_item "Send", new_admin_outreach_campaign_path, active: controller_name == "campaigns" %>
+            <%= nav_item "Sent log", admin_outreach_emails_path, active: controller_name == "emails" %>
+            <%= nav_item "Do not contact", admin_outreach_suppressions_path, active: controller_name == "suppressions" %>
+          </ul>
+          <ul class="navbar-nav align-items-lg-center gap-2">
+            <% if current_company %>
+              <%= nav_item "Back to app", dashboard_path %>
+            <% end %>
+            <li class="nav-item"><%= button_to "Sign out", logout_path, method: :delete, class: "btn btn-sm btn-outline-light" %></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <main class="container py-4 flex-grow-1">
+      <%= render "shared/flash" %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

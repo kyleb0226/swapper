@@ -1,0 +1,39 @@
+<%= page_title "Swap match" do %>
+  <%= status_badge @match.status %>
+<% end %>
+
+<div class="row g-4 align-items-stretch">
+  <% @match.employees.each_with_index do |employee, index| %>
+    <div class="col-md-5">
+      <div class="card h-100"><div class="card-body">
+        <h2 class="h5"><%= link_to employee.name, employee %></h2>
+        <p class="text-body-secondary mb-2"><%= employee.job_title %><%= " · #{employee.job_code}" if employee.job_code.present? %> · <%= pluralize(employee.seniority, "year") %></p>
+        <p class="mb-1"><strong>Moves from</strong> <%= employee.current_location.name %></p>
+        <p class="mb-0"><strong>to</strong> <%= @match.other_employee(employee).current_location.name %></p>
+        <% if employee.request_note.present? %><p class="small pre-wrap mt-3 mb-0 text-body-secondary">“<%= employee.request_note %>”</p><% end %>
+      </div></div>
+    </div>
+    <% if index.zero? %><div class="col-md-2 d-flex align-items-center justify-content-center fs-1 swap-arrow">⇄</div><% end %>
+  <% end %>
+</div>
+
+<% if (similarity = @match.similarity) %>
+  <div class="alert alert-info mt-4 mb-0">
+    <strong>Different jobs, judged similar<%= similarity.manual? ? " by HR" : " by AI (#{similarity.score}/100)" %>:</strong>
+    <%= similarity.reason %>
+    <% if Current.user.admin? %><%= link_to "Review jobs", jobs_path, class: "ms-1" %><% end %>
+  </div>
+<% end %>
+
+<div class="card mt-4"><div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+  <div class="small text-body-secondary">
+    <%= @match.type_label %> · found <%= l(@match.created_at.to_date, format: :long) %>
+    <% if @match.decided_by %> · last decision by <%= @match.decided_by.display_name %> on <%= l(@match.decided_at.to_date, format: :long) %><% end %>
+    <% if @match.pending? && (competing = @match.competing_count).positive? %>
+      <br><span class="text-warning-emphasis">Approving this clears <%= pluralize(competing, "other pending option") %> for these employees.</span>
+    <% end %>
+  </div>
+  <%= render "actions", match: @match %>
+</div></div>
+
+<%= link_to "← All matches", matches_path(status: @match.status), class: "d-inline-block mt-4" %>

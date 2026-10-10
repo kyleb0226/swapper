@@ -1,0 +1,21 @@
+<%= page_title "Company settings" %>
+<div class="card" style="max-width: 40rem"><div class="card-body p-4">
+  <%= form_with model: @company, url: company_path, method: :patch do |form| %>
+    <%= render "shared/errors", record: @company %>
+    <div class="mb-3">
+      <%= form.label :name, "Company name", class: "form-label" %>
+      <%= form.text_field :name, class: "form-control", required: true %>
+    </div>
+    <div class="form-check mb-1">
+      <%= form.check_box :ai_job_matching, class: "form-check-input", disabled: !JobComparer.available? %>
+      <%= form.label :ai_job_matching, "Also match employees in similar jobs (AI)", class: "form-check-label" %>
+    </div>
+    <div class="form-text mb-3">
+      AI compares job titles (for example "RN" and "Registered Nurse") and suggests swaps between jobs it judges interchangeable.
+      HR still approves every swap. Only job titles, codes and your job descriptions are sent to the AI, never employee names.
+      Each pair of jobs is compared once and re-checked only when one of the jobs changes. <%= link_to "Review jobs", jobs_path %>.
+      <% unless JobComparer.available? %><br><strong>Not available yet:</strong> the site administrator needs to set ANTHROPIC_API_KEY.<% end %>
+    </div>
+    <%= form.submit "Save", class: "btn btn-primary" %>
+  <% end %>
+</div></div>

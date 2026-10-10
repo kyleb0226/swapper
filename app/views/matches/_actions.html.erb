@@ -1,0 +1,14 @@
+<div class="d-flex flex-wrap gap-1 justify-content-end">
+  <% case match.status %>
+  <% when "pending" %>
+    <%= button_to "Approve", approve_match_path(match), method: :patch, class: "btn btn-sm btn-success",
+          data: { confirm: "Approve this swap? Other pending options for both employees will be cleared and they'll be emailed." } %>
+    <%= button_to "Reject", reject_match_path(match), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+  <% when "approved" %>
+    <%= button_to "Mark completed", complete_match_path(match), method: :patch, class: "btn btn-sm btn-primary",
+          data: { confirm: "Mark this swap completed? Both employees' current locations will be updated." } %>
+    <%= button_to "Undo approval", reopen_match_path(match), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+  <% when "rejected" %>
+    <%= button_to "Reopen", reopen_match_path(match), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+  <% end %>
+</div>

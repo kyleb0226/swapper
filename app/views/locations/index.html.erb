@@ -1,0 +1,27 @@
+<%= page_title "Locations", "Every site, store, school or facility employees can work at." do %>
+  <%= link_to "Add location", new_location_path, class: "btn btn-primary" %>
+<% end %>
+
+<div class="table-responsive">
+  <table class="table bg-white border">
+    <thead class="table-dark"><tr><th>Name</th><th>Region</th><th>Employees here</th><th>Want to move here</th><th></th></tr></thead>
+    <tbody>
+      <% @locations.each do |location| %>
+        <tr>
+          <td><%= location.name %></td>
+          <td><%= location.region %></td>
+          <td><%= link_to @headcounts.fetch(location.id, 0), employees_path(current_location_id: location.id) %></td>
+          <td><%= link_to @demand.fetch(location.id, 0), employees_path(desired_location_id: location.id) %></td>
+          <td class="text-end text-nowrap">
+            <%= link_to "Edit", edit_location_path(location), class: "btn btn-sm btn-outline-secondary" %>
+            <%= button_to "Delete", location_path(location), method: :delete, form_class: "d-inline", class: "btn btn-sm btn-outline-danger",
+                  data: { confirm: "Delete #{location.name}?" } %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @locations.empty? %>
+        <tr><td colspan="5" class="text-center text-body-secondary py-4">No locations yet. Add at least two to start matching.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

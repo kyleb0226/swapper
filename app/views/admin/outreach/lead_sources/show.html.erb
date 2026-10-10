@@ -1,0 +1,65 @@
+<%= page_title "Find leads", "Where organizations that need Swapper can be found, and searches to find the right people there." %>
+
+<div class="card mb-4"><div class="card-body">
+  <h2 class="h5">Search builder</h2>
+  <%= form_with url: admin_outreach_lead_sources_path, method: :get, class: "row g-2 align-items-end" do |form| %>
+    <div class="col-md-5">
+      <%= form.label :sector, class: "form-label small" %>
+      <%= form.select :sector, Outreach::Prospect::SECTORS, { prompt: "Choose a sector", selected: @sector }, class: "form-select", required: true %>
+    </div>
+    <div class="col-md-5">
+      <%= form.label :region, "City, state or region (optional)", class: "form-label small" %>
+      <%= form.text_field :region, value: @region, class: "form-control", placeholder: "e.g. Ohio, Dallas, Pacific Northwest" %>
+    </div>
+    <div class="col-md-2"><%= form.submit "Build searches", class: "btn btn-primary w-100", name: nil %></div>
+  <% end %>
+
+  <% if @searches %>
+    <hr>
+    <p class="small text-body-secondary">Opens in a new tab. When you find a good organization or contact,
+      <%= link_to "add them as a prospect", new_admin_outreach_prospect_path(sector: @sector, source: "Search builder") %>.</p>
+    <div class="list-group">
+      <% @searches.each do |label, url| %>
+        <%= link_to label, url, target: "_blank", rel: "noopener", class: "list-group-item list-group-item-action" %>
+      <% end %>
+    </div>
+  <% end %>
+</div></div>
+
+<div class="card mb-4"><div class="card-body">
+  <h2 class="h5">Best-fit customers</h2>
+  <p class="small text-body-secondary mb-2">Swapper is most valuable where the <em>same job</em> exists at <em>many sites</em> and transfers are requested often,
+    especially where union contracts or civil-service rules make seniority-based transfers mandatory.</p>
+  <div class="row small">
+    <div class="col-md-6">
+      <ul class="mb-0">
+        <li><strong>Hospital & health systems</strong>: nurses, techs and aides between hospitals and clinics</li>
+        <li><strong>Large school districts</strong>: teacher and staff transfers between schools (annual transfer windows)</li>
+        <li><strong>State departments of corrections</strong>: officers requesting facilities closer to home</li>
+        <li><strong>State agencies</strong>: DMV, social services, highway maintenance districts</li>
+      </ul>
+    </div>
+    <div class="col-md-6">
+      <ul class="mb-0">
+        <li><strong>Transit agencies</strong>: operators and mechanics between garages/depots</li>
+        <li><strong>County & city governments</strong>: libraries, parks, public works yards</li>
+        <li><strong>Retail, grocery & banking chains</strong>: store and branch staff</li>
+        <li><strong>Federal agencies</strong>: VA medical centers, USPS, TSA, BOP (longer sales cycle)</li>
+      </ul>
+    </div>
+  </div>
+</div></div>
+
+<% Outreach::LeadSources.by_category.each do |category, sources| %>
+  <h2 class="h5 mt-4"><%= category %></h2>
+  <div class="row g-3">
+    <% sources.each do |source| %>
+      <div class="col-md-6 col-xl-4">
+        <div class="card h-100"><div class="card-body">
+          <h3 class="h6 mb-1"><%= link_to source.name, source.url, target: "_blank", rel: "noopener" %></h3>
+          <p class="small text-body-secondary mb-0"><%= source.description %></p>
+        </div></div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,46 @@
+<% match = @employee.active_match %>
+<%= page_title "My transfer request", "#{@employee.job_title} · currently at #{@employee.current_location.name}" %>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card"><div class="card-body p-4">
+      <h2 class="h5 mb-3">Where would you like to work?</h2>
+      <% if @employee.locked_in_swap? %>
+        <div class="alert alert-info mb-0">HR has approved your swap to <strong><%= @employee.desired_location&.name %></strong>. Contact HR if anything needs to change.</div>
+      <% else %>
+        <%= form_with model: @employee, url: my_request_path, method: :patch do |form| %>
+          <%= render "shared/errors", record: @employee %>
+          <div class="mb-3">
+            <%= form.label :desired_location_id, "Desired location", class: "form-label" %>
+            <%= form.select :desired_location_id,
+                  current_company.locations.ordered.where.not(id: @employee.current_location_id).map { |l| [ l.name, l.id ] },
+                  { include_blank: "— I'm not requesting a move —" }, class: "form-select" %>
+          </div>
+          <div class="mb-3">
+            <%= form.label :request_note, "Note for HR (optional)", class: "form-label" %>
+            <%= form.text_area :request_note, rows: 3, class: "form-control", maxlength: 1000, placeholder: "e.g. closer to family, shorter commute, available from June" %>
+          </div>
+          <%= form.submit "Save request", class: "btn btn-primary" %>
+        <% end %>
+      <% end %>
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card"><div class="card-body p-4">
+      <h2 class="h5 mb-3">Status</h2>
+      <% if !@employee.seeking_swap? %>
+        <p class="text-body-secondary mb-0">You don't have an open request. Pick a desired location to start.</p>
+      <% elsif match.nil? %>
+        <p class="mb-1"><%= status_badge "new" %> <strong>Looking for a match</strong></p>
+        <p class="text-body-secondary small mb-0">Requested <%= @employee.desired_location.name %> on <%= l(@employee.swap_requested_at.to_date, format: :long) if @employee.swap_requested_at %>.
+          We'll match you as soon as someone at <%= @employee.desired_location.name %> with the same job wants your location.</p>
+      <% elsif match.pending? %>
+        <p class="mb-1"><%= status_badge "pending" %> <strong>Match found</strong></p>
+        <p class="text-body-secondary small mb-0">A coworker wants to swap with you. HR is reviewing it now.</p>
+      <% else %>
+        <p class="mb-1"><%= status_badge "approved" %> <strong>Swap approved</strong></p>
+        <p class="text-body-secondary small mb-0">You're swapping with <strong><%= match.other_employee(@employee).name %></strong>. HR will contact you about timing.</p>
+      <% end %>
+    </div></div>
+  </div>
+</div>

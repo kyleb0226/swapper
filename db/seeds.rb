@@ -1,62 +1,112 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
+# Idempotent: safe to run more than once.
 #
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# Every environment gets the starter outreach email templates.
+# Development also gets a demo company with one login per role.
 
+starter_templates = [
+  {
+    name: "Intro: public sector HR",
+    subject: "Transfer requests at {{organization}}",
+    body: <<~BODY
+      Hi {{first_name}},
 
+      I'm building Swapper, a small tool that helps agencies handle employee transfer requests. Employees say where they'd
+      rather work, Swapper finds coworkers in the same job who want to trade places, and HR approves the swaps in
+      seniority order, with a full audit trail.
 
+      For agencies with many sites, it usually turns a spreadsheet-and-email process into a few clicks, and it helps with
+      retention when people can get closer to home without leaving.
 
+      Would a 15-minute walkthrough be useful for {{organization}}? If transfers aren't your area, I'd be grateful if you
+      could point me to the right person.
 
+      Thanks,
+      Kyle
+    BODY
+  },
+  {
+    name: "Intro: healthcare systems",
+    subject: "Nurse transfer requests across {{organization}}",
+    body: <<~BODY
+      Hi {{first_name}},
 
-Location.create(name: "Downtown", company_id: 5)
-Location.create(name: "Uptown", company_id: 5)
-Location.create(name: "Countryside", company_id: 5)
-Location.create(name: "Seaside", company_id: 5)
-Location.create(name: "Mountains", company_id: 5)
-Location.create(name: "Valley", company_id: 5)
-Location.create(name: "Desert", company_id: 5)
-Location.create(name: "Forest", company_id: 5)
-Location.create(name: "Island", company_id: 5)
-Location.create(name: "Lakefront", company_id: 5)
+      Health systems lose good nurses and techs when a transfer request sits for months. Swapper matches staff who want to
+      trade facilities (same role, each wanting the other's site), so both units stay fully staffed and two people get
+      the move they asked for.
 
+      HR sees every possible swap ranked by seniority and approves it in one click. Employees get an email when it's done.
 
-require 'faker'
+      Could I show you how it would work for {{organization}}? 15 minutes is plenty.
 
-# Define job titles and job codes
-job_titles = ["engineer", "coder", "dentist", "doctor", "trash man"]
-job_codes = ["1", "2", "3", "4", "5"]
+      Best,
+      Kyle
+    BODY
+  },
+  {
+    name: "Follow-up",
+    subject: "Re: transfer requests at {{organization}}",
+    body: <<~BODY
+      Hi {{first_name}},
 
-# Shuffle the locations to ensure randomness
-shuffled_locations = Location.all.shuffle
+      Just following up on my note about Swapper. If location transfers aren't a pain point for {{organization}} right
+      now, no problem at all; just let me know and I won't follow up again.
 
-# Generate 100 random employees
+      Thanks,
+      Kyle
+    BODY
+  }
+]
 
+starter_templates.each do |attrs|
+  Outreach::EmailTemplate.find_or_create_by!(name: attrs[:name]) do |template|
+    template.subject = attrs[:subject]
+    template.body = attrs[:body]
+  end
+end
 
-100.times do
-    name = Faker::Name.unique.first_name
-    job_title = job_titles.sample
-    job_code = job_codes.sample
-    seniority = rand(1..50)
-  
-    # Pair up shuffled locations to assign current and desired locations alternately
-    current_location = shuffled_locations.pop
-    desired_location = shuffled_locations.pop
-  
-    Employee.create(
-      employee_name: name,
-      company_name: "swapper",
-      job_title: job_title,
-      job_code: job_code,
-      current_location: current_location,
-      desired_location: desired_location,
-      seniority: seniority
+return unless Rails.env.development?
+
+require "faker"
+
+company = Company.find_or_create_by!(name: "Demo Health Network")
+locations = [ "North Clinic", "South Clinic", "Downtown Hospital", "Riverside Hospital", "Lakeview Center" ].map do |name|
+  company.locations.find_or_create_by!(name: name)
+end
+
+password = "password123"
+{ "admin@example.com" => "admin", "manager@example.com" => "manager", "employee@example.com" => "employee" }.each do |email, role|
+  User.find_or_create_by!(email: email) do |user|
+    user.company = company
+    user.name = "Demo #{role.capitalize}"
+    user.role = role
+    user.password = password
+    user.activated_at = Time.current
+  end
+end
+
+User.find_or_create_by!(email: "owner@example.com") do |user|
+  user.name = "Platform Owner"
+  user.platform_admin = true
+  user.password = password
+  user.activated_at = Time.current
+end
+
+if company.employees.none?
+  Faker::Config.random = Random.new(42)
+  jobs = [ [ "Registered Nurse", "RN2" ], [ "Registered Nurse", "RN3" ], [ "Medical Assistant", "MA1" ], [ "Radiology Tech", "RT1" ] ]
+  60.times do
+    title, code = jobs.sample
+    current, desired = locations.sample(2)
+    company.employees.create!(
+      name: Faker::Name.name, email: Faker::Internet.unique.email(domain: "example.com"),
+      job_title: title, job_code: code, seniority: rand(0..30),
+      current_location: current, desired_location: (rand < 0.7 ? desired : nil)
     )
   end
-#make comparipason alg more efficient
 
+  employee_user = User.find_by!(email: "employee@example.com")
+  company.employees.first.update!(user: employee_user, email: employee_user.email)
+  SwapMatcher.new(company).refresh_all
+end
 
+puts "Demo data ready. Sign in with admin@, manager@, employee@ or owner@example.com / #{password}"

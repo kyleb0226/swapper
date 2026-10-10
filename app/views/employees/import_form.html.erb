@@ -1,0 +1,33 @@
+<%= page_title "Import employees", "Upload a CSV exported from your HR system or a spreadsheet." %>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card"><div class="card-body p-4">
+      <%= form_with url: import_employees_path, multipart: true do |form| %>
+        <div class="mb-3">
+          <%= form.label :file, "CSV file", class: "form-label" %>
+          <%= form.file_field :file, accept: ".csv,text/csv", class: "form-control", required: true %>
+        </div>
+        <%= form.submit "Import", class: "btn btn-primary" %>
+        <%= link_to "Download template", template_employees_path, class: "btn btn-link" %>
+      <% end %>
+      <% if @result&.errors&.any? %>
+        <div class="alert alert-warning mt-4 mb-0">
+          <strong><%= pluralize(@result.errors.size, "row") %> couldn't be imported:</strong>
+          <ul class="mb-0 mt-1 small"><% @result.errors.first(50).each do |error| %><li><%= error %></li><% end %></ul>
+        </div>
+      <% end %>
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card"><div class="card-body">
+      <h2 class="h6">Columns</h2>
+      <ul class="small mb-2">
+        <li><code>name</code>, <code>job_title</code>, <code>current_location</code> — required</li>
+        <li><code>email</code>, <code>job_code</code>, <code>seniority</code>, <code>desired_location</code> — optional</li>
+      </ul>
+      <p class="small text-body-secondary mb-0">New location names are created automatically. Rows with an email that already
+        exists update that employee, so you can re-upload the same file later.</p>
+    </div></div>
+  </div>
+</div>

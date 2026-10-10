@@ -1,0 +1,63 @@
+<%= page_title "Do not contact", "Nobody on this list gets an automatic email. Everyone you email is added here the moment it sends." %>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <%= form_with url: admin_outreach_suppressions_path, method: :get, class: "d-flex flex-wrap gap-2 mb-3" do |form| %>
+      <%= form.search_field :q, value: params[:q], class: "form-control", style: "max-width: 18rem", placeholder: "Search email, domain or note" %>
+      <%= form.select :reason, Outreach::Suppression::REASONS.map { |r| [ "#{Outreach::Suppression::LABELS[r]} (#{@counts.fetch(r, 0)})", r ] },
+            { include_blank: "All reasons", selected: params[:reason] }, class: "form-select", style: "max-width: 16rem" %>
+      <%= form.submit "Filter", class: "btn btn-outline-primary", name: nil %>
+    <% end %>
+    <div class="table-responsive">
+      <table class="table bg-white border">
+        <thead class="table-dark"><tr><th>Email or domain</th><th>Reason</th><th>Note</th><th>Added</th><th></th></tr></thead>
+        <tbody>
+          <% @suppressions.each do |row| %>
+            <tr>
+              <td><%= row.email || "Entire domain: @#{row.domain}" %></td>
+              <td><%= row.label %></td>
+              <td class="small text-body-secondary"><%= row.note %></td>
+              <td class="small text-nowrap"><%= l(row.created_at.to_date, format: :long) %></td>
+              <td class="text-end">
+                <% unless row.reason == "unsubscribed" %>
+                  <%= button_to "Remove", admin_outreach_suppression_path(row), method: :delete, class: "btn btn-sm btn-outline-secondary",
+                        data: { confirm: "Allow #{row.email || row.domain} to be emailed again?" } %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @suppressions.empty? %><tr><td colspan="5" class="text-center text-body-secondary py-4">Nobody on the list yet.</td></tr><% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card"><div class="card-body">
+      <h2 class="h6">Block an address or a whole organization</h2>
+      <%= form_with model: @suppression, url: admin_outreach_suppressions_path do |form| %>
+        <div class="mb-2">
+          <%= form.label :value, "Email or domain", class: "form-label small" %>
+          <%= form.text_field :value, value: "", class: "form-control", required: true, placeholder: "jane@county.gov or county.gov" %>
+        </div>
+        <div class="mb-2">
+          <%= form.label :reason, class: "form-label small" %>
+          <%= form.select :reason, [ [ "Blocked by you", "manual" ], [ "Existing customer", "customer" ] ], {}, class: "form-select" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :note, class: "form-label small" %>
+          <%= form.text_field :note, value: "", class: "form-control", placeholder: "Optional" %>
+        </div>
+        <%= form.submit "Add to list", class: "btn btn-primary" %>
+      <% end %>
+    </div></div>
+    <div class="card mt-3"><div class="card-body small text-body-secondary">
+      <strong>How the list protects you</strong>
+      <ul class="mb-0 mt-1">
+        <li>Everyone emailed is added automatically and never gets a second automatic email.</li>
+        <li>Once someone at an organization is emailed, colleagues there are skipped for 6 months.</li>
+        <li>Unsubscribes and bounced addresses are added for good.</li>
+        <li>Follow-ups go out only when you tick "This is a follow-up" on the Send page. AI agents can't send them.</li>
+      </ul>
+    </div></div>
+  </div>
+</div>

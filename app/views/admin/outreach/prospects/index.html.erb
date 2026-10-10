@@ -1,0 +1,45 @@
+<%= page_title "Prospects", "Organizations and contacts you might sell to." do %>
+  <%= link_to "Import CSV", import_admin_outreach_prospects_path, class: "btn btn-outline-primary" %>
+  <%= link_to "Add prospect", new_admin_outreach_prospect_path, class: "btn btn-primary" %>
+<% end %>
+
+<%= form_with url: admin_outreach_prospects_path, method: :get, class: "card card-body mb-3" do |form| %>
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4"><%= form.search_field :q, value: params[:q], class: "form-control", placeholder: "Search organization, name, email" %></div>
+    <div class="col-md-3"><%= form.select :sector, Outreach::Prospect::SECTORS, { include_blank: "All sectors", selected: params[:sector] }, class: "form-select" %></div>
+    <div class="col-md-2"><%= form.select :status, Outreach::Prospect::STATUSES.map { |s| [ s.humanize, s ] }, { include_blank: "All statuses", selected: params[:status] }, class: "form-select" %></div>
+    <div class="col-md-1"><%= form.text_field :state, value: params[:state], class: "form-control", placeholder: "State" %></div>
+    <div class="col-md-2"><%= form.submit "Filter", class: "btn btn-primary w-100", name: nil %></div>
+  </div>
+<% end %>
+
+<%= form_with url: new_admin_outreach_campaign_path, method: :get do |form| %>
+  <div class="table-responsive">
+    <table class="table table-hover bg-white border">
+      <thead class="table-dark">
+        <tr>
+          <th><input type="checkbox" class="form-check-input" data-select-all="prospect_ids[]" aria-label="Select all"></th>
+          <th>Organization</th><th>Contact</th><th>Sector</th><th>Location</th><th>Status</th><th>Last contacted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @prospects.each do |prospect| %>
+          <tr>
+            <td><%= check_box_tag "prospect_ids[]", prospect.id, false, class: "form-check-input", id: "prospect_#{prospect.id}", disabled: prospect.email.blank? || prospect.unsubscribed? || @suppressed[prospect.email].present?, aria: { label: "Select #{prospect.organization}" } %></td>
+            <td><%= link_to prospect.organization, admin_outreach_prospect_path(prospect) %></td>
+            <td><%= prospect.contact_name %><br><span class="small text-body-secondary"><%= prospect.email %></span>
+              <% if (row = @suppressed[prospect.email]) %><span class="badge text-bg-light border"><%= row.label %></span><% end %></td>
+            <td class="small"><%= prospect.sector %></td>
+            <td class="small"><%= [ prospect.city, prospect.state ].compact_blank.join(", ") %></td>
+            <td><%= status_badge prospect.status %></td>
+            <td class="small"><%= prospect.last_contacted_at ? "#{time_ago_in_words(prospect.last_contacted_at)} ago" : "—" %></td>
+          </tr>
+        <% end %>
+        <% if @prospects.empty? %>
+          <tr><td colspan="7" class="text-center text-body-secondary py-4">No prospects yet. <%= link_to "Find some leads", admin_outreach_lead_sources_path %>.</td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <%= form.submit "Email selected →", class: "btn btn-primary", name: nil %>
+<% end %>
